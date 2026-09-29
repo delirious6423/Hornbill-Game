@@ -60,3 +60,10 @@
 - Selected story models: shoemoney/Gemma-4-12B-Abliterated-MLX-q6 and mlx-community/gemma-4-E4B-it-OBLITERATED-mlx-8Bit. The lemuralabs 8-bit 12B candidate is explicitly superseded. Metadata/compatibility and storage checks precede installation.
 - Existing saves and old runtime weights remain intact; old app PID 24985 stays available on port 56643 until the replacement is verified. Previous performance evidence is historical, not a qualification of new models.
 - See HANDOFF.md for exact pins, files, processes, failed approaches, publication state and ordered next actions. This is a docs-only continuity checkpoint; the verified source ZIP is still checkpoint 0005.
+
+## 2026-09-29 — Checkpoint 0007: image replacement verified; runtime recovery
+
+- Exact BennyDaBall Q8_0 encoder verified/repacked without requantization; text-to-image and reference generation both passed visual inspection. Fixed left-padding NaNs and added pre-save finite checks. 43 tests, formatting, Clippy and release build passed.
+- Requested Gemma 12B Q6 is fully downloaded/hash-verified; E4B 8-bit and real story qualification are pending. macOS offloaded thousands of local runtime files to iCloud, blocking imports. Keep Downloaded is enabled; exact Python/pinned environment repair is underway, without replacing weights or saves.
+- User explicitly approved cleanup after each replacement passes. Removed only old Qwen model download (10,280,028,048 logical bytes); old Gemma downloads remain. The first interrupted new-12B test is preserved at turn 0.
+- Latest verified remote documentation commit before this checkpoint: a8831dca30a5a1f959931a8d6952da29bfe1c2a3. New source publication, updated GUI and source ZIP remain pending. See HANDOFF.md for exact pins, paths, failures and ordered next actions.
