@@ -2,7 +2,7 @@
 
 ## Checkpoint 0005 — Bounded memory generation; user review point
 
-Recorded: 2026-09-29 22:09:57 MYT (14:09:57 UTC). Trigger: user requested completion of the next small milestone, then a checkpoint/worklog for inspection. They explicitly answered “Pause for my review” to pausing the overall goal after this checkpoint. Exact context-percentage telemetry remains unavailable; no automatic 85% hook is installed.
+Recorded: 2026-09-29 22:25:09 MYT (14:25:09 UTC). Trigger: user requested completion of the next small milestone, then a checkpoint/worklog for inspection. They explicitly answered “Pause for my review” to pausing the overall goal after this checkpoint. Exact context-percentage telemetry remains unavailable; no automatic 85% hook is installed.
 
 ## Current scope and next-session rule
 
@@ -49,6 +49,8 @@ Story environment: work/runtime/venv; MLX 0.32.3, mlx-lm source 3051e26bc72b8ab4
 
 Database: outputs/hornbill/data/hornbill.sqlite3, schema 2. Review save: story_1790681920698, titled The Observatory Signal, turn 4. Its settings were restored to 12B + Smart images, 512×768, seed 42. Mira has the imported composition reference. Its generated image attempt 4 is reused on turns 3 and 4. An unused same-title test save story_1790681818741 remains at turn 0; preserve it and all benchmark/failed/CPU saves. Do not delete user or test history during handoff.
 
+Published source commit: 1fe3c364bd4753a3f77470aa583056287fa96c5c. All 87 repository files were verified against local Git blob hashes and executable modes; the existing initial commit was preserved. A final documentation synchronization may advance main; the external GitHub receipt records the final commit. Repository access uses the connected GitHub integration because local command-line Git has no credentials.
+
 User-facing review guide: outputs/Hornbill-Review.md. Screenshot: outputs/Hornbill-App.jpg (1280×1359). Images: outputs/Hornbill-First-Scene.png and Hornbill-Reference-Scene.png. Source README and ARCHITECTURE were rewritten for the current app, with full setup/launch and tested limits.
 
 Live server PID 24985, exec session 32119: work/runtime/target/release/hornbill ui --port 56643 --no-open. It is idle and intentionally left open for inspection. Log: work/ui-server.log. Browser tab 1 is at http://127.0.0.1:56643/ and marked deliverable; viewport override was reset. Its private launch URL is only in data/ui-session.json (mode 0600). Never upload that file or its capability. After a new CUA context, call cua.rewriteDocumentation() before using persistent hornbillTab. Do not kill the server while the user is inspecting it.
@@ -59,7 +61,7 @@ The browser’s file-chooser automation stalled for about two hours despite the 
 
 Drive folder ID: 1iD8uZPljGhpJ9rxCHh2BcP65v7-IYang. Worklog ID: 1lh94PinjOJo49JXDGrPLpY80sHcHgblqT3oSGkq0amE, tab t.0. Source archive file ID: 1fN4zxkI54L-TVCblj6dJ-UF6KWnC3h5U, refreshed in place as Project-Hornbill.zip. Local package: outputs/Project-Hornbill.zip. The older local Phase1 ZIP is retained. The separate outputs/Project-Hornbill-Backup-Receipt.json records the archive checksum and verified upload; keeping that receipt outside the ZIP avoids circular hashes. docs/drive-log.json is the worklog sync authority.
 
-1. Complete this checkpoint’s native Drive readback, source archive verification and newly requested GitHub publication. The goal is already paused; leave the idle app available and stop feature work for review. Delivery receipts record verified completion.
+1. Read delivery receipts if verification status is needed: Project-Hornbill-GitHub-Receipt.json and Project-Hornbill-Backup-Receipt.json alongside the source ZIP. GitHub source content is verified; final documentation and Drive backup are finalized around this checkpoint. The overall goal is already paused. Leave the idle app available and wait for the user’s review before feature work.
 2. On a later explicit resume, first read this handoff, worklog, validation, drive-log and the user’s inspection feedback. Do not rerun completed model/download checks by default.
 3. Next technical milestone: investigate the latest 12B swap increase and 24-second grammar construction, and measure the bounded grammar with E4B. Preserve the new list/tag constraints and old audits.
 4. Complete the remaining GUI export-download check, source-package launch review and qualitative story consistency review. Current sizes beyond 512×768, long sessions, new grammar through GGUF, other hardware, native Tauri packaging and true identity conditioning are not qualified.
