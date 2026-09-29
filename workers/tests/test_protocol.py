@@ -38,13 +38,13 @@ class WorkerProtocolTests(unittest.TestCase):
         self.assertEqual(envelope["raw_text"],"")
 
     def test_image_worker_rejects_bad_protocol_without_importing_metal(self):
-        result=subprocess.run([sys.executable,str(ROOT/"workers/qwen_image/worker.py")],input='{"protocol_version":2}',text=True,capture_output=True,check=True)
+        result=subprocess.run([sys.executable,str(ROOT/"workers/z_image/worker.py")],input='{"protocol_version":2}',text=True,capture_output=True,check=True)
         envelope=json.loads(result.stdout)
         self.assertIn("Unsupported image protocol",envelope["error"])
         self.assertEqual(envelope["raw_text"],"")
 
     def test_image_worker_bounds_input_before_loading_weights(self):
-        result=subprocess.run([sys.executable,str(ROOT/"workers/qwen_image/worker.py")],input="x"*(128*1024+1),text=True,capture_output=True,check=True)
+        result=subprocess.run([sys.executable,str(ROOT/"workers/z_image/worker.py")],input="x"*(128*1024+1),text=True,capture_output=True,check=True)
         self.assertIn("128 KiB",json.loads(result.stdout)["error"])
 
 

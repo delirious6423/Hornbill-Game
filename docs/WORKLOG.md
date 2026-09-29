@@ -67,3 +67,12 @@
 - Requested Gemma 12B Q6 is fully downloaded/hash-verified; E4B 8-bit and real story qualification are pending. macOS offloaded thousands of local runtime files to iCloud, blocking imports. Keep Downloaded is enabled; exact Python/pinned environment repair is underway, without replacing weights or saves.
 - User explicitly approved cleanup after each replacement passes. Removed only old Qwen model download (10,280,028,048 logical bytes); old Gemma downloads remain. The first interrupted new-12B test is preserved at turn 0.
 - Latest verified remote documentation commit before this checkpoint: a8831dca30a5a1f959931a8d6952da29bfe1c2a3. New source publication, updated GUI and source ZIP remain pending. See HANDOFF.md for exact pins, paths, failures and ordered next actions.
+
+## 2026-09-29 — Checkpoint 0008: selected models verified and review refreshed
+
+- Exact requested BennyDaBall Q8_0 encoder, Gemma 12B Q6 and E4B 8-bit are installed and verified. Four-turn runs passed: 12B all first attempts; E4B one repair. Mean saved-turn times including retries: 188.47 / 85.58 seconds. Peak MLX: 9.84 / 7.85 GiB. Both increased system swap; narrative continuity remains imperfect.
+- Fixed zero inventory deltas in the decoder contract and prompt. Restored offloaded Python/Rust files and one exact renderer shard. Workers now reject iCloud model placeholders before opening them. All 45 tests, formatting, Clippy and release build pass.
+- Updated GUI/settings and a 55.13-second Z-Image reference illustration passed. Review story remains turn 4 with exactly unchanged exported canonical state. Prior failed runs are preserved; local review export and screenshots are available.
+- With explicit user approval, removed only superseded qwen21, 12b and e4b downloads after checks. Their combined logical size is 20.71 GiB, not claimed physical space reclaimed. Saves, images, source, audits and GGUF remain.
+- Updated README, runtime/license notes, validation and review guides. HANDOFF.md contains exact pins, runtime repair paths, active app state, evidence, delivery authorities and remaining performance/finalization work. Drive and GitHub use the existing project destinations; external receipts identify the final verified commit and source ZIP for this checkpoint.
+- Drive checkpoint 0008 readback verified the complete text, six headings, native date chip and preserved previous history at 17:13:59 UTC. Worklog sync completed; GitHub and source-archive verification are recorded in the external checkpoint 0008 delivery receipts.

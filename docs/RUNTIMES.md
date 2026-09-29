@@ -1,43 +1,46 @@
-# Runtime verification · 29 September 2026
+# Runtime and model selections
 
-The following are upstream availability/implementation checks. They do not substitute for hardware benchmarks. Repository revisions and model artifacts are pinned in the supplied manifests and dependency locks.
+The user selected these replacements after checkpoint 0005. Old Qwen and original Gemma measurements remain historical evidence; they do not qualify the replacement weights. Installation pins exact revisions and verifies file sizes and hashes. Inference is offline.
 
-## Story runtimes
+## Story profiles
 
-| Candidate | Current evidence | MVP decision |
-|---|---|---|
-| Python MLX / mlx-lm | Upstream commit `3051e26bc72b8ab426af17d14c5599447eb306a5` maps `gemma4_unified` to the Gemma 4 text implementation and discards unused multimodal tensors. Released 0.31.3 lacks that 12B mapping. | Primary Apple implementation, pinned source; four real Metal turns verified for both profiles. |
-| llama.cpp / GGUF | Current native Gemma 4 parser and 12B GGUF artifacts exist. b11247 provides native templates, local token counting, grammar/schema output, and Metal/CPU builds. | Implemented portable fallback with an explicit CPU test mode. |
-| mistral.rs | Maintained Rust engine with Gemma 4 multimodal support, Metal, quantization, and structured generation. Published front-page speed comparisons use NVIDIA hardware. | Credible later alternative; do not transfer CUDA numbers to a base M4. Prefer prequantized weights over quantizing full precision in 16 GB. |
-| mlx-rs | Actively developed Rust bindings to the MLX array framework. The repository's examples are not a verified Gemma 4 12B application/runtime. | Do not implement our own transformer/tokenizer/quantization integration to make the first milestone all-Rust. |
-| mlx-vlm | The community model cards name this multimodal path. Our input is text; loading image/audio machinery adds integration scope. | Keep available for future multimodal requirements; use the text-only mapping for Phase 1. |
-
-Sources: [MLX-LM pinned mapping](https://github.com/ml-explore/mlx-lm/blob/3051e26bc72b8ab426af17d14c5599447eb306a5/mlx_lm/utils.py), [Gemma weight sanitization](https://github.com/ml-explore/mlx-lm/blob/3051e26bc72b8ab426af17d14c5599447eb306a5/mlx_lm/models/gemma4.py), [llama.cpp Gemma 4 parser](https://github.com/ggml-org/llama.cpp/blob/0bc845d35/common/parsers/gemma4.cpp), [llama.cpp server](https://github.com/ggml-org/llama.cpp/tree/b11247/tools/server), [mistral.rs](https://github.com/EricLBuehler/mistral.rs), [mlx-rs](https://github.com/oxiglade/mlx-rs).
-
-## Exact story artifacts
-
-| Profile | Repository | Revision | Weight bytes |
+| Profile | Selected repository | Revision | Weight bytes |
 |---|---|---|---:|
-| MLX 12B, 4-bit | `mlx-community/gemma-4-12B-it-4bit` | `73bcf09092aa277861d5a191b989b666f7f32e8f` | 6,741,039,511 |
-| MLX E4B, 4-bit | `mlx-community/gemma-4-e4b-it-4bit` | `475b9088d29754a3379866cf5aeb6b41acd313c2` | 5,146,800,534 |
-| GGUF 12B, Q4_K_M | `unsloth/gemma-4-12b-it-GGUF` | `fc034cfff751157913579611efad8462ac1be606` | 7,121,861,440 |
+| 12B, MLX Q6 | [shoemoney/Gemma-4-12B-Abliterated-MLX-q6](https://huggingface.co/shoemoney/Gemma-4-12B-Abliterated-MLX-q6) | `edd4c19a3edc7d4637c729fcb776e190ba0b7b25` | 9,728,621,337 |
+| E4B, MLX 8-bit | [mlx-community/gemma-4-E4B-it-OBLITERATED-mlx-8Bit](https://huggingface.co/mlx-community/gemma-4-E4B-it-OBLITERATED-mlx-8Bit) | `db71b2644248b4f9e7e31ede5e6f631b870d8af5` | 7,988,669,526 |
+| Story compatibility fallback, GGUF Q4_K_M | [unsloth/gemma-4-12b-it-GGUF](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF/tree/fc034cfff751157913579611efad8462ac1be606) | `fc034cfff751157913579611efad8462ac1be606` | 7,121,861,440 |
 
-The E4B file is about 5.15 GB: its name is not a promise of a 2 GB download or resident footprint. The 12B MLX weights are about 6.74 GB. These are disk sizes, not runtime RAM. KV cache, tokenizer, activations, allocator cache, and the operating system all need additional memory. [MLX 12B model](https://huggingface.co/mlx-community/gemma-4-12B-it-4bit), [MLX E4B model](https://huggingface.co/mlx-community/gemma-4-e4b-it-4bit), [GGUF files](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF/tree/fc034cfff751157913579611efad8462ac1be606).
+The replacement MLX model cards declare Apache 2.0. Their downloaded cards retain attribution to their respective source models. The earlier lemuralabs 12B 8-bit suggestion was superseded and is not installed or selected. The GGUF fallback is the original instruction model, not an abliterated equivalent of either new MLX profile.
 
-Initial settings are a 6,144-token total context, up to 1,536 generated tokens, 256-token MLX prefill chunks, a 10 GiB MLX allocator budget, and a 256 MiB allocator cache. These are starting limits, not measured safe operating points for every application workload. KV quantization and speculative decoding are deferred until the baseline is measured.
+The local directories are `models/12b-abliterated-q6` and `models/e4b-obliterated-8bit`. `workers/gemma/models.json` is the shared selection authority for the installer, UI and benchmark runner. A prior profile receipt or incomplete installation is not reported as ready. `scripts/model.sh use 12b|e4b` verifies the pinned installation before switching the default CLI model; UI preferences remain per save.
 
-## Qualified Qwen Image 2.1 runtime
+MLX 0.32.3 and [mlx-lm source 3051e26](https://github.com/ml-explore/mlx-lm/tree/3051e26bc72b8ab426af17d14c5599447eb306a5) remain pinned. This revision already maps `gemma4_unified` to the Gemma text implementation and strips unused multimodal tensors in its official sanitizer. Hornbill keeps `strict=True` for the remaining model weights and does not enable remote code. This is why the 12B model card's mlx-vlm example does not require a second multimodal runtime for Hornbill's text-only input. Outlines 1.3.3 constrains the Rust-generated schema, and Rust validates state changes independently.
 
-The local worker now uses [MFLUX source 2924d0c](https://github.com/mflux-community/mflux/tree/2924d0c7cd7104a1ab2f18f40d3bedcf47ba8b9c/src/mflux/models/qwen21), with the newer LoRA mapping and text-prefix cache absent from the published 0.20.0 wheel. It is pinned separately from the story environment in workers/qwen_image/requirements.lock.
+Default context is 6,144 tokens with up to 1,536 output tokens, 256-token prefill chunks, a 10 GiB MLX allocator limit and 256 MiB cache. File size is not resident memory. See [validation](VALIDATION.md) for observed allocations, swap and quality limits. The two workers never remain loaded together or overlap an image worker.
 
-[Full-Q4 MFLUX pack](https://huggingface.co/mlx-community/Qwen-Image-2.1-mflux-q4/tree/746a58556820933a2df5c75887a2570f1ad200c0) provides both encoder and transformer Q4 weights. The worker narrowly enables quantized encoder construction for this verified pack. Prompt materialization before eviction follows the approach documented by [Rapid-MLX](https://github.com/raullenchai/Rapid-MLX/blob/778781e5e5715c500ab3b087d0bba48988914063/rapid_mlx/image/engine.py).
+The selected 12B initially returned zero inventory deltas for unchanged items. Rust rejected both attempts without changing the save. Inventory instructions now explicitly use an empty array for unchanged counts, and the decoder allows only nonzero integers from -100 to 100. The schema uses an explicit numeric enum because the pinned Outlines Core ignores numeric `minimum`/`maximum`; a regression exercises the actual compiled grammar at both bounds and rejects zero, fractions and out-of-range values. Rust still validates ownership and inventory underflow independently.
 
-The [Viggle v0.2.1 rank-128 adapter](https://huggingface.co/Viggle/Qwen-Image-2.1-viggle-turbo/tree/bb26a0f38e5fe6c124aaccc9187a87eed5d9ed13) runs unmerged with six fixed sigmas: 1, .9375, .875, .75, .5, .25, then 0. All 454 keys matched 227 layers in the actual run. Do not substitute a generic low-step schedule or merge into BF16 weights.
+The existing llama.cpp b11247 GGUF fallback retains private temporary-server supervision, schema output and CPU/Metal modes. It is the portability path for story generation. Linux/NVIDIA and Windows remain unqualified on this Mac.
 
-The first 512×768 M4 image took 103.23 seconds and peaked at 5.13 GiB of MLX memory. Encoder/transformer eviction and worker exit were measured; tiled VAE decode is enabled and allocator cache is zero. See VALIDATION.md and measurements/qwen-first-image.json for the actual limits. Downloaded files total about 9.57 GiB; disk size is not resident memory.
+## Z-Image-Turbo with the exact selected encoder
 
-The [official Qwen model](https://huggingface.co/Qwen/Qwen-Image-2.1) uses qwen-research terms. Preserve the downloaded base/LICENSE; inconsistent community Apache metadata does not replace the upstream license.
+The image stack consists of two separately pinned components:
 
-The browser reference workflow and a real img2img run are now verified. At 512×768 and reference strength 0.6, it used the last three updates of the six-step schedule: 43.34 seconds total, peak MLX 5.43 GiB and peak RSS 4.94 GiB, with the system swap counter unchanged. This is not directly comparable with a full six-update text-to-image run. See measurements/qwen-reference-image.json.
+- Renderer: [mflux-community/z-image-turbo-mflux-q4](https://huggingface.co/mflux-community/z-image-turbo-mflux-q4/tree/f427e257d8e6ffa03edd4d9ac554a05809da456c), revision `f427e257d8e6ffa03edd4d9ac554a05809da456c`. Only its Q4 transformer and VAE are installed; its default text encoder is not used.
+- Encoder: [BennyDaBall/Qwen3-4b-Z-Image-Turbo-AbliteratedV1](https://huggingface.co/BennyDaBall/Qwen3-4b-Z-Image-Turbo-AbliteratedV1/tree/ce497d288a7ddfd5d0f337c7139349d5d0236bfa), revision `ce497d288a7ddfd5d0f337c7139349d5d0236bfa`, exact file `Z-Image-AbliteratedV1.Q8_0.gguf`. Size: 4,280,405,248 bytes. SHA256: `6272f0f8db9e91f5ed748c51da27f646ae2d2cb2a28460a38294192288f85298`.
 
-This low-memory path offers one composition reference via img2img. MFLUX native Qwen21 Edit uses a separate multimodal loader and is not yet qualified here. Do not claim multi-reference identity conditioning from an img2img result. GGUF image support exists upstream in stable-diffusion.cpp but is not an implemented Hornbill image backend; story GGUF is implemented.
+The user-linked GGUF is a Qwen3-4B text encoder for Z-Image, not a stand-alone image renderer. Hornbill uses that exact file. Its signed Q8_0 blocks are repacked into equivalent MLX affine Q8 blocks with group size 32, F32 scales and F32 biases. This is a storage adaptation without requantization. Every integer block is checked during repacking; actual MLX and GGUF dequantizers are compared at the first and last rows of all 253 matrices, with zero sampled error. The 398 source tensors map to the complete expected encoder. The native cache is 5,028,771,857 bytes, in addition to the retained GGUF. Receipt and generated-shard hashes live in `hornbill-model.json`; `workers/z_image/model.py` can re-verify them.
+
+Both component cards declare Apache 2.0. The [upstream Z-Image license at commit 26f23ed](https://github.com/Tongyi-MAI/Z-Image/blob/26f23eda626ffadda020b04ff79488e1d72004cd/LICENSE) is bundled as `workers/z_image/APACHE-2.0.txt`; its SHA256 is `c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4`. Preserve the cards and attribution. These are recorded upstream declarations, not an independent legal opinion. Qwen Image 2.1 and its `qwen-research` license are historical and are no longer part of the active image backend.
+
+MFLUX source `2924d0c7cd7104a1ab2f18f40d3bedcf47ba8b9c`, MLX 0.32.3 and gguf 0.19.0 are pinned in the separate image environment. The worker loads the encoder, materializes penultimate-layer prompt features and releases it; loads the Q4 transformer and denoises; releases the transformer and compiled closure; then loads the VAE for tiled decoding. For a reference, it briefly loads the VAE before denoising too. Process exit is the final reclamation boundary.
+
+The selected tokenizer defaults to left padding, while MFLUX's encoder assumes valid tokens start at zero. The first integration run produced non-finite encoder features and a black PNG; that failed artifact is excluded from deliverables. The worker now explicitly right-pads, checks for non-finite features/latents/decoded pixels and rejects a bad result before writing. It checks the complete chat-templated prompt against 512 tokens rather than silently truncating it.
+
+Default images use 512×768, nine denoising steps, seed 42 and a 9 GiB allocator ceiling. Supported step values are 4–12. Existing saved Qwen settings migrate once to nine steps while retaining the selected story model, scheduling, dimensions, seed and reference strength. Later explicit Z-Image step choices are preserved.
+
+A reference uses img2img composition guidance. Strength 0.6 with nine steps runs the last four denoising updates; it is not directly comparable with nine-step text-to-image. A composition result does not prove face identity locking or multiple-reference conditioning. The current image runtime requires Apple Silicon/MLX; selecting a GGUF encoder does not by itself make the entire image pipeline portable.
+
+## Storage and preservation
+
+The user approved removing only superseded Qwen 2.1 and original Gemma 12B/E4B downloads after each replacement passes checks. Saves, generated images, source, test evidence and the GGUF fallback remain local and preserved. Fresh installation needs roughly 45–50 GB for the selected image assets, optional story profiles, runtimes and build files; conversion also needs temporary free space. Every installer checks space before downloading, and the image converter shares the inference lease.

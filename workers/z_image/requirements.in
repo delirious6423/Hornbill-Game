@@ -1,0 +1,4 @@
+# Pinned MFLUX includes staged Z-Image components and img2img support.
+mflux @ https://github.com/mflux-community/mflux/archive/2924d0c7cd7104a1ab2f18f40d3bedcf47ba8b9c.zip
+mlx==0.32.3
+gguf==0.19.0

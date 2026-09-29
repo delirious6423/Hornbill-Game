@@ -2,6 +2,7 @@ pub mod database;
 pub mod image_engine;
 pub mod image_prompt;
 pub mod inference;
+pub mod model_profiles;
 pub mod models;
 pub mod prompt_builder;
 pub mod state;

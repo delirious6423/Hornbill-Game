@@ -26,8 +26,9 @@ def main():
     output_dir=root/"data"/f"bench_{time.strftime('%Y%m%d_%H%M%S')}"
     output_dir.mkdir(parents=True,exist_ok=False)
     rows=[]
+    profiles=json.loads((root/"workers/gemma/models.json").read_text())
     for profile in args.profiles:
-        model=runtime/"models"/("gguf-12b/gemma-4-12b-it-Q4_K_M.gguf" if profile=="gguf" else profile)
+        model=runtime/"models"/("gguf-12b/gemma-4-12b-it-Q4_K_M.gguf" if profile=="gguf" else profiles[profile]["directory"])
         if not model.exists():
             raise SystemExit(f"Model missing: {model}. Download explicitly before benchmarking.")
         save=f"bench_{profile}_{time.time_ns()}"

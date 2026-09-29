@@ -45,6 +45,12 @@ def validate_request(request):
     return settings
 
 
+def require_downloaded(path):
+    # macOS SF_DATALESS: reject a placeholder before a model read triggers hydration.
+    if getattr(path.stat(), "st_flags", 0) & 0x40000000:
+        raise ValueError(f"Model file is offloaded to iCloud: {path}. Keep the runtime downloaded before generating.")
+
+
 def generate(model_path, request, meta):
     import mlx.core as mx
     from mlx_lm import stream_generate
@@ -62,7 +68,16 @@ def generate(model_path, request, meta):
                  "runtime_version":importlib.metadata.version("mlx-lm"), "settings":settings})
     manifest = model_path / "hornbill-model.json"
     if manifest.is_file():
+        require_downloaded(manifest)
         meta["model"] = json.loads(manifest.read_text())
+        selections = json.loads(Path(__file__).with_name('models.json').read_text())
+        if meta['model'] not in selections.values():
+            raise ValueError('Installed story model is superseded; download and select the current profile explicitly')
+        for name, detail in meta['model']['files'].items():
+            path = model_path / name
+            if not path.is_file() or path.stat().st_size != detail['bytes']:
+                raise ValueError(f'Missing or incomplete selected model file: {path}')
+            require_downloaded(path)
     mx.set_memory_limit(settings["memory_limit_bytes"])
     mx.set_cache_limit(256 * 1024**2)
     mx.reset_peak_memory()

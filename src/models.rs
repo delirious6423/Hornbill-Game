@@ -75,7 +75,15 @@ pub struct Scene {
 pub struct InventoryChange {
     #[schemars(regex(pattern = "^[a-z0-9_]{1,64}$"))]
     pub item: String,
+    #[schemars(schema_with = "inventory_delta_schema")]
     pub delta: i32,
+}
+
+fn inventory_delta_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+    // Outlines Core currently ignores numeric minimum/maximum. An explicit enum
+    // enforces the same nonzero bounds as State::apply, including for GGUF.
+    let values: Vec<i32> = (-100..=100).filter(|value| *value != 0).collect();
+    schemars::json_schema!({"type": "integer", "enum": values})
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
@@ -149,6 +157,7 @@ pub struct StateChanges {
     pub new_characters: Vec<Character>,
     #[schemars(length(max = 3))]
     pub new_locations: Vec<Location>,
+    /// Only items actually gained or lost this turn. Use [] if none changed.
     #[schemars(length(max = 12))]
     pub inventory: Vec<InventoryChange>,
     #[schemars(length(max = 12))]

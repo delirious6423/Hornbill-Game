@@ -1,0 +1,128 @@
+{
+  "created_at": "2026-09-29T17:00:22.338Z",
+  "error": null,
+  "finished_at": "2026-09-29T17:01:17.478Z",
+  "id": 6,
+  "metadata": {
+    "backend": "mflux-z-image-turbo",
+    "component_load_ms": {
+      "text_encoder": [
+        2368.617624997569
+      ],
+      "transformer": [
+        1409.0682919995745
+      ],
+      "vae": [
+        85.69129100214923,
+        83.02700000058394
+      ]
+    },
+    "decode_ms": 1864.774417001172,
+    "denoise_ms": 42451.200458999665,
+    "denoise_updates": 4,
+    "encode_ms": 1963.0689160039765,
+    "encoder_quantization": {
+      "bits": 8,
+      "group_size": 32,
+      "method": "Lossless integer-block repacking to MLX affine Q8; no requantization",
+      "source_format": "GGUF Q8_0",
+      "version": 2
+    },
+    "load_ms": 3946.404207999876,
+    "memory_stages": [
+      {
+        "active_bytes": 5031262472,
+        "peak_bytes": 5983369480,
+        "stage": "encoded"
+      },
+      {
+        "active_bytes": 2621448,
+        "peak_bytes": 5983369480,
+        "stage": "encoder_released"
+      },
+      {
+        "active_bytes": 3014704,
+        "peak_bytes": 5983369480,
+        "stage": "latents_ready"
+      },
+      {
+        "active_bytes": 3471892686,
+        "peak_bytes": 5983369480,
+        "stage": "denoised"
+      },
+      {
+        "active_bytes": 393268,
+        "peak_bytes": 5983369480,
+        "stage": "transformer_released"
+      },
+      {
+        "active_bytes": 169736570,
+        "peak_bytes": 5983369480,
+        "stage": "decoded"
+      }
+    ],
+    "mflux_revision": "2924d0c7cd7104a1ab2f18f40d3bedcf47ba8b9c",
+    "mflux_version": "0.20.0",
+    "mlx_peak_bytes": 5983369480,
+    "mlx_version": "0.32.3",
+    "model": "mflux-community/z-image-turbo-mflux-q4",
+    "model_license": "apache-2.0",
+    "model_revision": "f427e257d8e6ffa03edd4d9ac554a05809da456c",
+    "peak_rss_bytes": 4932976640,
+    "prompt_tokens": 203,
+    "reference_and_latents_ms": 1213.8564580018283,
+    "reference_mode": "image_to_image_composition",
+    "settings": {
+      "height": 768,
+      "memory_limit_bytes": 9663676416,
+      "reference_strength": 0.6,
+      "seed": 42,
+      "steps": 9,
+      "width": 512
+    },
+    "sigmas": [
+      1.0,
+      0.9424651265144348,
+      0.8775498867034912,
+      0.8037365674972534,
+      0.7190613150596619,
+      0.6209360361099243,
+      0.5058795809745789,
+      0.3690961301326752,
+      0.20378968119621277,
+      0.0
+    ],
+    "stderr": "Z-Image denoise 1/4\nZ-Image denoise 2/4\nZ-Image denoise 3/4\nZ-Image denoise 4/4\n",
+    "swap_after_bytes": 2207126650,
+    "swap_before_bytes": 2265846906,
+    "text_encoder": "BennyDaBall/Qwen3-4b-Z-Image-Turbo-AbliteratedV1",
+    "text_encoder_revision": "ce497d288a7ddfd5d0f337c7139349d5d0236bfa",
+    "total_ms": 54718.32424999593,
+    "worker_exited": true,
+    "worker_pid": 36624,
+    "worker_total_ms": 55134.959083
+  },
+  "request": {
+    "output_path": "/Users/yo15m4/Documents/Codex/2026-09-29/project-hornbill/outputs/hornbill/data/generations/story_1790681920698/turn-4-6.png",
+    "prompt": "Painterly visual novel, atmospheric natural light, restrained cinematic color illustration. East maintenance path: A narrow gravel path beside the observatory, leading toward a service entrance.. Day 1, dusk. Weather: Light rain. Mood: Tense. Lighting: Dusk, overcast sky.. Camera: Close-up on the lock, then a medium shot of Mira's face..\nMira: age 28; Round face with freckles; Copper-red bob; Green eyes; Short and wiry; wearing Mustard field jacket, charcoal trousers, walking boots; accessories: Round brass spectacles; distinctive features: Crescent birthmark below left ear. Current emotion: Serious. Pose: Standing near the service door, looking at the player..\nAction: Inspect the rusted lock mechanism.; Listen to Mira's explanation about the KESTREL-7 signal.. Maintain the described identities and clothing. One coherent scene, no captions, dialogue bubbles or interface elements.",
+    "protocol_version": 1,
+    "reference_path": "/Users/yo15m4/Documents/Codex/2026-09-29/project-hornbill/outputs/hornbill/data/references/story_1790681920698/mira_1790689669163.png",
+    "settings": {
+      "height": 768,
+      "memory_limit_bytes": 9663676416,
+      "reference_strength": 0.6,
+      "seed": 42,
+      "steps": 9,
+      "width": 512
+    },
+    "visual_key": "{\"characters\":[{\"appearance\":{\"accessories\":[\"Round brass spectacles\"],\"age\":28,\"build\":\"Short and wiry\",\"clothing\":\"Mustard field jacket, charcoal trousers, walking boots\",\"distinctive_features\":[\"Crescent birthmark below left ear\"],\"eyes\":\"Green\",\"face\":\"Round face with freckles\",\"hair\":\"Copper-red bob\"},\"id\":\"mira\",\"name\":\"Mira\",\"personality\":\"Resourceful radio engineer; dry humor hides her unease about the transmission. Loyal but willing to disagree.\"}],\"location\":{\"description\":\"A narrow gravel path beside the observatory, leading toward a service entrance.\",\"id\":\"maintenance_path\",\"name\":\"East maintenance path\"},\"references\":{\"mira\":[\"references/story_1790681920698/mira_1790689669163.png\"]},\"style\":\"Painterly visual novel, atmospheric natural light, restrained cinematic color\"}"
+  },
+  "result": {
+    "height": 768,
+    "path": "generations/story_1790681920698/turn-4-6.png",
+    "width": 512
+  },
+  "status": "succeeded",
+  "turn": 4,
+  "review_story_unchanged": true
+}

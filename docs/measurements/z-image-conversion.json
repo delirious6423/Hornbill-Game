@@ -1,0 +1,187 @@
+{
+  "spec": {
+    "name": "Z-Image-Turbo with BennyDaBall Qwen3-4b AbliteratedV1 encoder",
+    "license": "apache-2.0",
+    "mflux_revision": "2924d0c7cd7104a1ab2f18f40d3bedcf47ba8b9c",
+    "steps": 9,
+    "conversion": {
+      "version": 2,
+      "source_format": "GGUF Q8_0",
+      "bits": 8,
+      "group_size": 32,
+      "method": "Lossless integer-block repacking to MLX affine Q8; no requantization"
+    },
+    "upstream_license": {
+      "url": "https://raw.githubusercontent.com/Tongyi-MAI/Z-Image/26f23eda626ffadda020b04ff79488e1d72004cd/LICENSE",
+      "bytes": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "revision": "26f23eda626ffadda020b04ff79488e1d72004cd"
+    },
+    "renderer": {
+      "repo": "mflux-community/z-image-turbo-mflux-q4",
+      "revision": "f427e257d8e6ffa03edd4d9ac554a05809da456c",
+      "license": "apache-2.0",
+      "files": {
+        "README.md": {
+          "bytes": 2893,
+          "sha256": null,
+          "git_blob_sha1": "d1aa78eaa9d5c0c5bbe2f19ecd30fe7728532c5e"
+        },
+        "transformer/0.safetensors": {
+          "bytes": 2140225820,
+          "sha256": "6dd1c55ab672d2148171b13b9c6e719465aecf12743ccb6d97d5ee1978f7e9ba",
+          "git_blob_sha1": null
+        },
+        "transformer/1.safetensors": {
+          "bytes": 1323528823,
+          "sha256": "135062103c799495abe92f9966b163f39498b590a2244954679c0d709acb8b61",
+          "git_blob_sha1": null
+        },
+        "transformer/model.safetensors.index.json": {
+          "bytes": 61606,
+          "sha256": null,
+          "git_blob_sha1": "1455bc3cbf51198d9b5fbf50eb2d9e0b6d43e995"
+        },
+        "vae/0.safetensors": {
+          "bytes": 164654177,
+          "sha256": "531f8197f218382e2f5d300bee1a0b42edbc50ad7f181e37e994b9d1ca471a58",
+          "git_blob_sha1": null
+        },
+        "vae/model.safetensors.index.json": {
+          "bytes": 17378,
+          "sha256": null,
+          "git_blob_sha1": "33dfe32850bad435088bd6cfb11aa6adfdbaa585"
+        }
+      }
+    },
+    "encoder": {
+      "repo": "BennyDaBall/Qwen3-4b-Z-Image-Turbo-AbliteratedV1",
+      "revision": "ce497d288a7ddfd5d0f337c7139349d5d0236bfa",
+      "license": "apache-2.0",
+      "files": {
+        "README.md": {
+          "bytes": 2799,
+          "sha256": null,
+          "git_blob_sha1": "1a46a4c4821bc34fa1d373e5d71923ef88fa4b39"
+        },
+        "chat_template.jinja": {
+          "bytes": 4256,
+          "sha256": null,
+          "git_blob_sha1": "b11e13ef0c59aa4b052a74de766e263c5b9332ec"
+        },
+        "config.json": {
+          "bytes": 1663,
+          "sha256": null,
+          "git_blob_sha1": "f6e3f2e7b49f238df1c655b8265e699122579303"
+        },
+        "tokenizer.json": {
+          "bytes": 11422817,
+          "sha256": "79cb3c783570f1b8fe73b9ed530ae50cae9ce4b6344c0b5edefc50478847eaa4",
+          "git_blob_sha1": null
+        },
+        "tokenizer_config.json": {
+          "bytes": 9732,
+          "sha256": null,
+          "git_blob_sha1": "417d038a63fa3de29cfde265caedae14d1a58d92"
+        },
+        "Z-Image-AbliteratedV1.Q8_0.gguf": {
+          "bytes": 4280405248,
+          "sha256": "6272f0f8db9e91f5ed748c51da27f646ae2d2cb2a28460a38294192288f85298",
+          "git_blob_sha1": null
+        }
+      },
+      "weight_file": "Z-Image-AbliteratedV1.Q8_0.gguf"
+    }
+  },
+  "converted_files": {
+    "0.safetensors": {
+      "bytes": 486195550,
+      "sha256": "4e499429fece022057dbfe8cf394bd0ebaf4590ab0d8a0d24fbf55f74e3485b8"
+    },
+    "1.safetensors": {
+      "bytes": 252372201,
+      "sha256": "e2abb015007d7f5f052f1f73ed28c694d7d2d23d18ad3c5f9d159cb7ef74191d"
+    },
+    "10.safetensors": {
+      "bytes": 252361902,
+      "sha256": "7a4c34048f192f132f8a857ce23ef3501cf188fc7e24ed6194d02a6875720d3d"
+    },
+    "11.safetensors": {
+      "bytes": 252361896,
+      "sha256": "1d3324f870fc4c7b253a49902071a61cd54f026dfceffb0b104110339d417374"
+    },
+    "12.safetensors": {
+      "bytes": 252361889,
+      "sha256": "c9f3b5cf63341b88e911e794f3e69f76c1a8f1629be94a8c0e3c4aab707a3caf"
+    },
+    "13.safetensors": {
+      "bytes": 252361922,
+      "sha256": "7cd9481abf11d0c066cc96c49c8e02f1d34f2ead81877659bf16c6f035cca639"
+    },
+    "14.safetensors": {
+      "bytes": 252361922,
+      "sha256": "de097fe897e3da1cb37ad57e03bb2d248e9e32f9dadcabf5c5d89ec7b61bd6fe"
+    },
+    "15.safetensors": {
+      "bytes": 252361927,
+      "sha256": "59825e935840d1e0864f81b39ef332d0898cbe684a677bd43971cbff5c5ed459"
+    },
+    "16.safetensors": {
+      "bytes": 252361858,
+      "sha256": "02fa6b219b6200f00078148390689c48233e87c91c7bce5daf150023430323f8"
+    },
+    "17.safetensors": {
+      "bytes": 252361872,
+      "sha256": "c5f7e088ce0f94749fd2f99780e69f2929f5283d0925f36f98c27306d9d3a3f3"
+    },
+    "18.safetensors": {
+      "bytes": 252361842,
+      "sha256": "20c30c2f4b7b6d722c9ce84af3e016cf7c2081613136dac9d92b02f8ff349f72"
+    },
+    "2.safetensors": {
+      "bytes": 252361920,
+      "sha256": "985b3f81efd4de710f8a1764f9aa4d78a02b834310508936379a7ccb5c68d541"
+    },
+    "3.safetensors": {
+      "bytes": 252361930,
+      "sha256": "8f80c998c03a3c3165fea8ff4007b16d6769db97bc644a855d4b95483017fbb4"
+    },
+    "4.safetensors": {
+      "bytes": 252361928,
+      "sha256": "e786b72d73183d1160c371479487db35e0262a468577c94caebefac2c69adf70"
+    },
+    "5.safetensors": {
+      "bytes": 252361934,
+      "sha256": "90ca761d88a532c262163eea9cb2480fbd14f208f501f7c5fe414cde511549ee"
+    },
+    "6.safetensors": {
+      "bytes": 252361913,
+      "sha256": "3e80f301615c31793beaab9596b3bf0c4f509212b14020fc8e30eb75758416e2"
+    },
+    "7.safetensors": {
+      "bytes": 252361892,
+      "sha256": "f61b0adb0d44535b49d4cebeca51dafc94c59ed48cfbc6e8ab4749c357d287f2"
+    },
+    "8.safetensors": {
+      "bytes": 252361906,
+      "sha256": "e191e762e06dbd1305cb55ca81b6daecacd774857dbc2f64cf99d46c940eafba"
+    },
+    "9.safetensors": {
+      "bytes": 252361914,
+      "sha256": "a61728fe29af378d8ae23585d9c67d0b15e82f2c232067c8a1e8477219e5bde4"
+    },
+    "model.safetensors.index.json": {
+      "bytes": 51739,
+      "sha256": "a4ca23c5da23cf63336a4ae1378c79740e526babab3377cbdab60b730e34d3e6"
+    }
+  },
+  "conversion_seconds": 31.436510040999565,
+  "verification": {
+    "matrices_checked": 253,
+    "max_dequantization_error": 0.0,
+    "source_format": "Q8_0",
+    "repacked_bits": 8,
+    "repacked_group_size": 32
+  },
+  "conversion_note": "Selected BennyDaBall Q8_0 GGUF repacked to MLX affine Q8, group size 32. No requantization or replacement encoder."
+}

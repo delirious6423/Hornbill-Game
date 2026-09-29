@@ -17,11 +17,12 @@ pub fn local_backend(
     crate::inference::process::ProcessBackend {
         executable: runtime.join("image-venv/bin/python"),
         args: vec![
-            root.join("workers/qwen_image/worker.py")
+            root.join("workers/z_image/worker.py").display().to_string(),
+            "--model".into(),
+            runtime
+                .join("models/z-image-turbo-benny")
                 .display()
                 .to_string(),
-            "--model".into(),
-            runtime.join("models/qwen21").display().to_string(),
         ],
         timeout: std::time::Duration::from_secs(1200),
         worker_lock: root.join("data/worker.lock"),

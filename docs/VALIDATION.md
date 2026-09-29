@@ -1,41 +1,46 @@
-# Current validation — checkpoint 0005
+# Current validation — checkpoint 0008
 
-The local graphical story-to-image loop works on the M4 / 16 GB Mac. The latest milestone bounds generated memory lists and identifiers in the actual decoder grammar, then successfully replays the failed fourth-turn summary action. The project is paused for user review; performance and finalization remain open.
+The three requested model replacements are installed and verified on the M4 / 16 GB Mac. Hornbill uses the exact BennyDaBall Q8_0 encoder with Z-Image-Turbo, shoemoney Gemma 12B Q6 and mlx-community Gemma E4B 8-bit. The default remains 12B. See [runtime pins and provenance](RUNTIMES.md). The original GGUF instruction-model fallback remains installed.
 
-35 tests pass: 27 Rust (7 process, 15 story, 5 image) and 8 Python. Formatting, Clippy, the release build and JavaScript syntax checks passed. The two new Python regressions compile the schema emitted by Rust through Outlines Core: five memories are accepted, the observed 35-memory response is rejected, and uppercase proper names remain allowed in prose but not internal tags. See [the recorded checks](measurements/bounded-schema-checks.txt).
+All **45 automated tests pass**: 30 Rust and 15 Python. Formatting, Clippy and the release build pass. Checks cover state transactions, process cleanup, the actual constrained-decoder grammar, legacy image-setting migration, incomplete model receipts, weight corruption, lossless Q8 repacking, non-finite scales, unknown encoder tensors and overwrite protection. [Recorded checks](measurements/model-replacement-checks.txt).
 
-| Local workload | Time | Peak MLX | Result |
+| Current workload | Measured time | Peak MLX | Result |
 |---|---:|---:|---|
-| Earlier Gemma 12B, four turns | 83.70 s/turn mean | 7.04 GiB | 4/4 first attempts accepted; summary refreshed |
-| Earlier Gemma E4B, same actions | 43.08 s/turn mean | 4.38 GiB | 4/4 first attempts accepted; summary refreshed |
-| Bounded-schema 12B, failed action replay | 117.98 s | 7.06 GiB | First attempt accepted; turn 4, one memory, refreshed summary |
-| Qwen 2.1 Q4 + Viggle, first 512×768 image | 103.23 s | 5.13 GiB | PNG and visual inspection passed |
-| Qwen, GUI text-to-image | 89.30 s | 5.14 GiB | Saved and displayed after the story |
-| Qwen, reference-guided 512×768 | 43.34 s | 5.43 GiB | Composition/clothing continuity observed |
+| Gemma 12B Q6, four turns | 188.47 s/saved turn | 9.84 GiB | 4/4 first attempts; summary refreshed |
+| Gemma E4B 8-bit, four turns | 85.58 s/saved turn | 7.85 GiB | 3/4 first attempts; summary refreshed |
+| Z-Image text-to-image, 512×768, 9 steps | 126.39 s | 5.57 GiB | PNG and visual inspection passed |
+| Z-Image GUI with reference, 512×768 | 55.13 s | 5.57 GiB | Saved and displayed at existing turn 4 |
 
-The reference run used three denoising updates from the six-step schedule at strength 0.6. It is not directly comparable to full text-to-image. Its peak RSS was 4.94 GiB and the system swap counter was unchanged. One composition anchor is supported; face identity, native editing and multiple reference conditioning are not qualified.
+Story times include every attempt for each saved turn, including E4B's rejected first attempt. Accepted E4B workers alone averaged 68.66 seconds. Decode throughput averaged 6.80 tokens/s for 12B and 14.65 for E4B. These are four-turn samples with cold workers, not statistical performance guarantees. The GUI reference image uses four denoise updates from a nine-step schedule at strength 0.6; it is not comparable to full text-to-image.
 
-## Remaining performance issue
+## Memory and latency limits
 
-The bounded-schema 12B replay took 24.14 seconds to compile the grammar and 35.29 seconds to first token. It generated 602 tokens from a 3,626-token prompt at 11.74 decode tokens/s. Peak process RSS was 5.69 GiB. MLX allocations and RSS are different measurements and must not be added.
+12B peaked at 9.84 GiB of MLX allocations and 7.18 GiB RSS; E4B peaked at 7.85 GiB MLX and 7.35 GiB RSS. These measures overlap and must not be added. During the four accepted 12B attempts, system swap rose 1.91–2.44 GiB per attempt; during accepted E4B attempts it rose 0.51–0.79 GiB. The counter covers the whole Mac, so attribution is not isolated. Neither profile is qualified as swap-free on this 16 GB machine. The exact requested quantizations were retained.
 
-System swap increased from 2,496,722,370 to 5,281,939,456 bytes during this run: **+2.59 GiB**. Hornbill's contribution versus other applications has not been isolated. The latest configuration is therefore not qualified as comfortably swap-free on 16 GB. The next milestone is profiling grammar construction and total memory, then measuring the bounded schema with E4B. Earlier, smaller swap changes cannot override this observation.
+Grammar construction still costs about 25–31 seconds per worker. Prompt lengths reached 4,214 tokens for 12B and 3,928 for E4B, within the 6,144-token context including the 1,536-token output allowance. Every worker exited before the next model began. The next performance milestone is safe reuse of decoder preparation and an isolated memory-pressure comparison; it must not leave both models resident.
 
-## Graphical and persistence checks
+## Reliability and story quality
 
-- Created and resumed stories, saved model/image preferences, submitted typed actions and a displayed choice, and displayed real narration, dialogue, choices and images.
-- Saved direction and world notes, retained them through a full server restart, attached a local reference to Mira and generated a reference-guided picture.
-- Verified automatic story-to-image sequencing and Manual image reuse. The review save is `story_1790681920698`, The Observatory Signal, turn 4; preferences are restored to 12B + Smart, 512×768, seed 42.
-- Cancelled before story commit without advancing the save, and after story commit while an image started without losing the saved turn or previous picture. No inference worker remained at the final idle check.
-- Passed five API checks: unauthorized access rejected, authorized access accepted, foreign origin rejected, stale turn rejected and saved PNG served.
-- Fixed and exercised the narrow-layout New story control and immediate progress display. Errors are also shown inside open dialogs.
+The first 12B attempt and its repair returned zero inventory changes for unchanged items. Rust rejected both without changing the save. The prompt now explicitly uses an empty inventory-change array when nothing was gained or lost; the decoder enforces nonzero integer deltas in -100..100. Its real four-turn rerun passed all first attempts. The [rejected audit](measurements/gemma-q6-inventory-rejected.json) remains alongside the [successful 12B audit](measurements/selected-gemma-12b.json).
 
-The original summary attempt repeated memories until the 1,536-token limit cut off entry 35. It was rejected, and its cancelled repair left turn 3 intact. After the schema fix, the exact same action committed turn 4 on its first attempt. SQLite remains canonical, and all failed/interrupted audits are preserved. Existing schema-1 saves migrate without replacement.
+E4B's first response gave Mira dialogue but omitted her from the scene cast. Rust rejected it; the built-in repair succeeded, and the next three first attempts passed. [Complete E4B audit](measurements/selected-gemma-e4b.json). No invalid attempt changed canonical state.
 
-These are small sequential local samples, not a statistical quality benchmark. 12B's earlier writing was clearer; E4B was more repetitive. The latest summary describes a low radio battery despite an earlier line saying it was holding steady and might drain. Narrative consistency still needs qualitative review: valid JSON does not establish prose truth.
+Both profiles preserve typed state and produce a summary, but their prose still needs review. 12B's turn-four choices suggest taking the maintenance path after already reaching its entrance. E4B repeats rain starting on successive turns, describes moving along a path while retaining the observatory location, and adds an unsupported claim that the pair have not been followed to its summary. E4B's dialogue often avoids the player's specific question. Valid JSON does not establish narrative truth. The small sample favors 12B for detail, with a substantial speed/memory cost.
 
-## Evidence and limits
+## Image and graphical checks
 
-Full before/after records: [before the constraint fix](measurements/ui-before-bounded-schema.json), [successful replay](measurements/ui-bounded-schema-rerun.json). Other checks: [GUI milestone](measurements/ui-milestone-checks.json), [cancellation](measurements/ui-cancellation-checks.json), [API checks](measurements/ui-api-checks.json), [reference image](measurements/qwen-reference-image.json), and [model comparison](measurements/mlx-model-comparison.csv). Earlier CPU and prompt-only failures remain in `measurements/`.
+The selected Q8_0 encoder was SHA256-verified and repacked without requantization. All 398 tensor shapes were checked; actual MLX and GGUF dequantizers matched the first and last rows of all 253 matrices exactly. The initial black image exposed left padding in the selected tokenizer. The worker now right-pads and rejects non-finite features, latents and pixels before saving.
 
-Still unverified: browser export-download interaction (the export API works), a clean-machine installation, sustained sessions, image sizes beyond 512×768, the new bounded grammar through GGUF, and other hardware. Native Tauri packaging, native Qwen editing and true identity conditioning are not implemented/qualified. Do not restart model tests during the review pause.
+Text-to-image and reference-guided PNGs were visually inspected. The earlier reference run's 260.66-second wall time includes an iCloud file-read stall; retain it as failure evidence, not clean latency. A first GUI attempt also failed while reading an offloaded renderer shard. That exact shard was restored from the pinned source and SHA256-verified; both story and image workers now reject macOS offloaded model placeholders before opening them. The final GUI retry used the restored runtime and passed save/display checks. Composition and clothing continuity are observed; exact face identity is unproved.
+
+The current GUI shows both new Gemma labels and Z-Image. Legacy preferences migrated to nine steps while preserving 12B, Smart scheduling, 512×768 and seed 42. The review save `story_1790681920698` remains at turn 4 with the same canonical story state, notes and Mira reference; a new illustration was added. A settings write during an external benchmark was safely refused by the shared lock, then succeeded after the benchmark exited. Prior cancellation/resume, state authorization and stale-turn checks remain documented in [historical validation](checkpoints/0005-validation.md).
+
+The export API works. The in-app browser's export button produced no console error, but its download event timed out, so the actual browser download remains unverified. A separate local review export is provided with this checkpoint. Clean-machine installation, sustained sessions, larger image sizes, the current bounded grammar through GGUF, other hardware and native Tauri packaging remain unqualified.
+
+## Runtime recovery and approved cleanup
+
+iCloud offloaded Python, package and Rust support files under Documents, causing blocked reads. The project was marked Keep Downloaded. Exact Python 3.12.14 and the pinned story/image environments were restored locally, and 30 offloaded Rust files were restored from SHA256-verified Rust 1.98.1 archives. Original environments and offloaded originals remain under `work/runtime/*-icloud-original` and `work/icloud-recovery`; no global tools were changed.
+
+With explicit user approval, superseded Qwen 2.1 and original Gemma 12B/E4B download directories were removed only after each replacement passed. Their combined logical size was 22,232,645,255 bytes (20.71 GiB); this is not the amount of local space reclaimed because some files were already offloaded. Saves, generated images, source, audits and the 7,121,861,440-byte GGUF fallback remain. [Cleanup receipt](measurements/model-cleanup.json).
+
+Model-comparison [summary](measurements/selected-gemma-comparison.json), [CSV](measurements/selected-gemma-comparison.csv), [GUI image](measurements/z-image-gui.json), [conversion](measurements/z-image-conversion.json) and previous failures remain inspectable. Older Qwen and Gemma 4-bit measurements are historical and do not qualify these replacements.

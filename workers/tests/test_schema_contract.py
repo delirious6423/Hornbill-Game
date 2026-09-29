@@ -51,6 +51,17 @@ class DecoderContractTests(unittest.TestCase):
         value["memory_updates"][0]["tags"] = ["KESTREL-7"]
         self.assertFalse(self.accepted(value))
 
+    def test_inventory_grammar_rejects_zero_and_out_of_range_deltas(self):
+        value = copy.deepcopy(self.example)
+        value["state_changes"]["inventory"] = []
+        self.assertTrue(self.accepted(value), "unchanged inventory must remain empty")
+        for delta in (-100, -1, 1, 100):
+            value["state_changes"]["inventory"] = [{"item": "flashlight", "delta": delta}]
+            self.assertTrue(self.accepted(value), f"valid delta {delta}")
+        for delta in (-101, 0, 101, 1.5):
+            value["state_changes"]["inventory"] = [{"item": "flashlight", "delta": delta}]
+            self.assertFalse(self.accepted(value), f"invalid delta {delta}")
+
 
 if __name__ == "__main__":
     unittest.main()

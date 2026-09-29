@@ -36,6 +36,40 @@ pub struct Preferences {
     pub image_policy: ImagePolicy,
     pub visual_threshold: f32,
     pub image: ImageSettings,
+    #[serde(default = "legacy_image_backend_version")]
+    pub image_backend_version: u32,
+}
+fn legacy_image_backend_version() -> u32 {
+    1
+}
+
+#[cfg(test)]
+mod preference_tests {
+    use super::*;
+
+    #[test]
+    fn old_image_settings_migrate_without_changing_story_or_seed() {
+        let old = json!({"model":"e4b","image_policy":"manual","visual_threshold":0.8,
+            "image":{"width":384,"height":576,"steps":40,"seed":123}});
+        let settings: Preferences = serde_json::from_value(old).unwrap();
+        let settings = settings.migrate();
+        settings.validate().unwrap();
+        assert_eq!(settings.image_backend_version, 2);
+        assert_eq!(settings.image.steps, 9);
+        assert_eq!(settings.model, "e4b");
+        assert_eq!(settings.image.seed, 123);
+        assert_eq!(settings.image.width, 384);
+        assert_eq!(settings.image_policy, ImagePolicy::Manual);
+    }
+
+    #[test]
+    fn current_image_settings_keep_an_explicit_step_choice() {
+        let current = json!({"image_backend_version":2,"image":{"steps":6}});
+        let settings: Preferences = serde_json::from_value(current).unwrap();
+        let settings = settings.migrate();
+        settings.validate().unwrap();
+        assert_eq!(settings.image.steps, 6);
+    }
 }
 impl Default for Preferences {
     fn default() -> Self {
@@ -44,11 +78,23 @@ impl Default for Preferences {
             image_policy: ImagePolicy::Smart,
             visual_threshold: 0.65,
             image: ImageSettings::default(),
+            image_backend_version: 2,
         }
     }
 }
 impl Preferences {
+    fn migrate(mut self) -> Self {
+        if self.image_backend_version == 1 {
+            self.image.steps = ImageSettings::default().steps;
+            self.image_backend_version = 2;
+        }
+        self
+    }
     fn validate(&self) -> Result<()> {
+        ensure!(
+            self.image_backend_version == 2,
+            "unknown image backend version"
+        );
         ensure!(
             ["12b", "e4b", "gguf"].contains(&self.model.as_str()),
             "unknown story model"
@@ -156,9 +202,10 @@ fn preferences(db: &Database, save: &str) -> Result<Preferences> {
             |r| r.get(0),
         )
         .optional()?;
-    value
-        .map(|s| serde_json::from_str(&s).map_err(Into::into))
-        .unwrap_or_else(|| Ok(Preferences::default()))
+    let settings: Preferences = value
+        .map(|s| serde_json::from_str(&s).map_err(anyhow::Error::from))
+        .unwrap_or_else(|| Ok(Preferences::default()))?;
+    Ok(settings.migrate())
 }
 fn write_preferences(db: &Database, save: &str, value: &Preferences) -> Result<()> {
     value.validate()?;
@@ -180,7 +227,7 @@ async fn saves(State(app): State<App>) -> Api<Json<Value>> {
     )?;
     let rows=q.query_map([],|r|Ok(json!({"id":r.get::<_,String>(0)?,"title":r.get::<_,String>(1)?,"turn":r.get::<_,u32>(2)?,"updated_at":r.get::<_,String>(3)?})))?.collect::<std::result::Result<Vec<_>,_>>()?;
     Ok(Json(
-        json!({"saves":rows,"models":{"12b":app.runtime.join("models/12b/hornbill-model.json").exists(),"e4b":app.runtime.join("models/e4b/hornbill-model.json").exists(),"gguf":app.runtime.join("models/gguf-12b/gemma-4-12b-it-Q4_K_M.gguf").exists()},"images_ready":app.runtime.join("models/qwen21/hornbill-model.json").exists()}),
+        json!({"saves":rows,"models":{"12b":crate::model_profiles::installed(&app.runtime,"12b"),"e4b":crate::model_profiles::installed(&app.runtime,"e4b"),"gguf":app.runtime.join("models/gguf-12b/gemma-4-12b-it-Q4_K_M.gguf").exists()},"images_ready":app.runtime.join("models/z-image-turbo-benny/hornbill-model.json").exists()}),
     ))
 }
 #[derive(Deserialize)]
@@ -213,7 +260,7 @@ async fn set_preferences(
 ) -> Api<Json<Value>> {
     app.idle()?;
     let _lease = acquire_lease(&app.data.join("turn.lock"))?;
-    write_preferences(&app.db()?, &save, &p)?;
+    write_preferences(&app.db()?, &save, &p.migrate())?;
     Ok(Json(json!({"saved":true})))
 }
 #[derive(Deserialize)]
@@ -351,11 +398,16 @@ async fn run_job(
                 .to_string(),
             "--model".into(),
         ];
-        let model = app.runtime.join("models").join(if prefs.model == "gguf" {
-            "gguf-12b/gemma-4-12b-it-Q4_K_M.gguf"
+        let model = if prefs.model == "gguf" {
+            app.runtime
+                .join("models/gguf-12b/gemma-4-12b-it-Q4_K_M.gguf")
         } else {
-            &prefs.model
-        });
+            ensure!(
+                crate::model_profiles::installed(&app.runtime, &prefs.model),
+                "selected story model is not installed; run scripts/model.sh download"
+            );
+            crate::model_profiles::path(&app.runtime, &prefs.model)?
+        };
         ensure!(model.exists(), "selected story model is not installed");
         args.push(model.display().to_string());
         if prefs.model == "gguf" {

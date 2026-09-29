@@ -31,7 +31,7 @@ impl Default for ImageSettings {
         Self {
             width: 512,
             height: 768,
-            steps: 6,
+            steps: 9,
             seed: 42,
             memory_limit_bytes: 9 * 1024_u64.pow(3),
             reference_strength: 0.6,
@@ -48,8 +48,8 @@ impl ImageSettings {
             );
         }
         ensure!(
-            [6, 20, 40].contains(&self.steps),
-            "use 6 turbo steps or 20/40 base-model steps"
+            (4..=12).contains(&self.steps),
+            "Z-Image-Turbo supports 4–12 steps; 9 is the default"
         );
         ensure!(
             (4 * 1024_u64.pow(3)..=10 * 1024_u64.pow(3)).contains(&self.memory_limit_bytes),

@@ -1,0 +1,41 @@
+{
+  "authorization": "User explicitly approved removing superseded model downloads after replacement checks",
+  "entries": [
+    {
+      "model": "qwen21",
+      "logical_bytes": 10280028048,
+      "replacement": "Z-Image-Turbo with exact BennyDaBall Q8_0 encoder",
+      "checks": "Both real PNGs inspected; checksums/conversion and 43 automated tests passed",
+      "removed_at": "2026-09-29T16:13:02.165982+00:00"
+    },
+    {
+      "model": "12b",
+      "logical_bytes": 6773374499,
+      "allocated_bytes_before_removal": 32378880,
+      "replacement": "shoemoney/Gemma-4-12B-Abliterated-MLX-q6",
+      "revision": "edd4c19a3edc7d4637c729fcb776e190ba0b7b25",
+      "checks": "Four accepted real Metal story turns, summary refresh and reaped workers; 44 automated checks passed",
+      "qualification_save": "bench_12b_1790699667474863000",
+      "removed_at": "2026-09-29T16:48:16.027874+00:00",
+      "note": "Logical size is not reclaimed local space; some superseded files were already offloaded by iCloud."
+    },
+    {
+      "model": "e4b",
+      "logical_bytes": 5179242708,
+      "allocated_bytes_before_removal": 5179023360,
+      "replacement": "mlx-community/gemma-4-E4B-it-OBLITERATED-mlx-8Bit",
+      "revision": "db71b2644248b4f9e7e31ede5e6f631b870d8af5",
+      "checks": "Four accepted real Metal story turns, summary refresh and reaped workers; 44 automated checks passed",
+      "qualification_save": "bench_e4b_1790700426807122000",
+      "removed_at": "2026-09-29T16:53:38.781407+00:00",
+      "note": "Logical size is not reclaimed local space; some superseded files were already offloaded by iCloud."
+    }
+  ],
+  "preserved": [
+    "saves",
+    "images",
+    "source",
+    "audit history",
+    "GGUF fallback"
+  ]
+}

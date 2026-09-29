@@ -14,7 +14,7 @@ Local UI action / CLI choice
   → release story turn lease
   → acquire image turn lease and recheck expected version
   → compile canonical image prompt; apply Smart/Always/Manual policy
-  → reuse an image, or acquire the same worker lease and run Qwen
+  → reuse an image, or acquire the same worker lease and run Z-Image
   → validate PNG and save image association; worker exits
   → display the saved result
 ```
@@ -33,7 +33,9 @@ Story settings include a token budget, context budget, temperature, seed and mem
 
 MLX uses Outlines constrained decoding and Rust independently validates the result. The generated schema carries the engine’s collection limits (including at most five memories) and lowercase identifier patterns. This prevents the observed runaway memory-array loop and uppercase memory-tag error during generation itself. Decoder-regression tests compile the real Rust schema with Outlines Core, accepting valid prose/proper names while rejecting both observed invalid forms. GGUF uses llama.cpp grammar generation through a private ephemeral loopback server with a random key and proxies disabled. Offline flags are enforced during inference; dependency/model downloads belong to explicit setup commands. Mac/Linux process supervision is implemented; Windows job-object support remains unqualified.
 
-Qwen uses separate Python dependencies, full Q4 weights, an unmerged six-step adapter, materialized prompt cache and staged eviction. The encoder is released before denoising and the transformer before tiled VAE decoding. A fresh worker/process exit gives a final memory-reclamation boundary. One local reference can guide img2img composition; native multi-reference identity editing is a different loader that has not been qualified for 16 GB.
+Z-Image uses separate pinned Python dependencies, the exact selected BennyDaBall Q8_0 GGUF encoder adapted losslessly to MLX storage, and a Q4 Z-Image-Turbo renderer. The encoder is released before denoising and the transformer plus its compiled closure before tiled VAE decoding. The tokenizer is right-padded to match MFLUX's feature slicing and causal mask. Non-finite values are rejected before an image file is written. A fresh worker/process exit gives the final memory-reclamation boundary. One local reference guides img2img composition; true face locking and multiple-reference identity conditioning remain unqualified.
+
+`workers/gemma/models.json` pins the current 12B Q6 and E4B 8-bit selections, file hashes and distinct install directories. The UI and installer use that shared manifest, preventing a stale original-model receipt from masquerading as a replacement. Saved image preferences carry an image-backend version; legacy preferences migrate to nine Z-Image steps without changing story state or other user choices.
 
 ## Persistence and audit
 

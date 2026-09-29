@@ -4,8 +4,8 @@
   "worklog_document_id": "1lh94PinjOJo49JXDGrPLpY80sHcHgblqT3oSGkq0amE",
   "worklog_url": "https://docs.google.com/document/d/1lh94PinjOJo49JXDGrPLpY80sHcHgblqT3oSGkq0amE",
   "tab_id": "t.0",
-  "checkpoint_id": "0007",
-  "checkpoint_recorded_at": "2026-09-29T16:17:29.602856+00:00",
+  "checkpoint_id": "0008",
+  "checkpoint_recorded_at": "2026-09-29T17:07:47.310326+00:00",
   "timezone": "Asia/Kuala_Lumpur",
   "context_threshold_percent": 85,
   "trigger_mode": "agent_instruction_best_effort",
@@ -14,7 +14,7 @@
   "local_handoff": "docs/HANDOFF.md",
   "local_worklog": "docs/WORKLOG.md",
   "sync_pending": false,
-  "last_verified_sync_at": "2026-09-29T16:18:53.184381+00:00",
+  "last_verified_sync_at": "2026-09-29T17:13:59.728Z",
   "source_archive_uploaded": true,
   "source_archive_approval": "explicit_user_approval",
   "source_archive_local_path": "/Users/yo15m4/Documents/Codex/2026-09-29/project-hornbill/outputs/Project-Hornbill.zip",
@@ -23,8 +23,9 @@
   "source_archive_receipt": "/Users/yo15m4/Documents/Codex/2026-09-29/project-hornbill/outputs/Project-Hornbill-Backup-Receipt.json",
   "github_repository_url": "https://github.com/delirious6423/Hornbill-Game",
   "github_branch": "main",
-  "github_source_commit": "a8831dca30a5a1f959931a8d6952da29bfe1c2a3",
   "github_receipt": "/Users/yo15m4/Documents/Codex/2026-09-29/project-hornbill/outputs/Project-Hornbill-GitHub-Receipt.json",
   "source_archive_verification_authority": "External receipt; see source_archive_receipt for the verified archive checkpoint and checksum.",
-  "checkpoint_status": "image_verified_story_runtime_repair"
+  "checkpoint_status": "model_replacements_verified_review_ready",
+  "github_previous_checkpoint_commit": "0ded5daed30e392be0f38637c1fbea196aa28c96",
+  "github_verification_authority": "External Project-Hornbill-GitHub-Receipt.json records the final delivered commit and matching blob hashes/modes."
 }

@@ -55,13 +55,13 @@ enum Commands {
     },
     /// Print canonical saved state as JSON.
     Inspect,
-    /// Illustrate the current saved scene with the isolated local Qwen worker.
+    /// Illustrate the current saved scene with the isolated local Z-Image worker.
     Illustrate {
         #[arg(long, default_value_t = 512)]
         width: u32,
         #[arg(long, default_value_t = 768)]
         height: u32,
-        #[arg(long, default_value_t = 6)]
+        #[arg(long, default_value_t = 9)]
         steps: u32,
         #[arg(long, default_value_t = 42)]
         seed: u32,

@@ -1,0 +1,94 @@
+{
+  "name": "Z-Image-Turbo with BennyDaBall Qwen3-4b AbliteratedV1 encoder",
+  "license": "apache-2.0",
+  "mflux_revision": "2924d0c7cd7104a1ab2f18f40d3bedcf47ba8b9c",
+  "steps": 9,
+  "conversion": {
+    "version": 2,
+    "source_format": "GGUF Q8_0",
+    "bits": 8,
+    "group_size": 32,
+    "method": "Lossless integer-block repacking to MLX affine Q8; no requantization"
+  },
+  "upstream_license": {
+    "url": "https://raw.githubusercontent.com/Tongyi-MAI/Z-Image/26f23eda626ffadda020b04ff79488e1d72004cd/LICENSE",
+    "bytes": 11357,
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "revision": "26f23eda626ffadda020b04ff79488e1d72004cd"
+  },
+  "renderer": {
+    "repo": "mflux-community/z-image-turbo-mflux-q4",
+    "revision": "f427e257d8e6ffa03edd4d9ac554a05809da456c",
+    "license": "apache-2.0",
+    "files": {
+      "README.md": {
+        "bytes": 2893,
+        "sha256": null,
+        "git_blob_sha1": "d1aa78eaa9d5c0c5bbe2f19ecd30fe7728532c5e"
+      },
+      "transformer/0.safetensors": {
+        "bytes": 2140225820,
+        "sha256": "6dd1c55ab672d2148171b13b9c6e719465aecf12743ccb6d97d5ee1978f7e9ba",
+        "git_blob_sha1": null
+      },
+      "transformer/1.safetensors": {
+        "bytes": 1323528823,
+        "sha256": "135062103c799495abe92f9966b163f39498b590a2244954679c0d709acb8b61",
+        "git_blob_sha1": null
+      },
+      "transformer/model.safetensors.index.json": {
+        "bytes": 61606,
+        "sha256": null,
+        "git_blob_sha1": "1455bc3cbf51198d9b5fbf50eb2d9e0b6d43e995"
+      },
+      "vae/0.safetensors": {
+        "bytes": 164654177,
+        "sha256": "531f8197f218382e2f5d300bee1a0b42edbc50ad7f181e37e994b9d1ca471a58",
+        "git_blob_sha1": null
+      },
+      "vae/model.safetensors.index.json": {
+        "bytes": 17378,
+        "sha256": null,
+        "git_blob_sha1": "33dfe32850bad435088bd6cfb11aa6adfdbaa585"
+      }
+    }
+  },
+  "encoder": {
+    "repo": "BennyDaBall/Qwen3-4b-Z-Image-Turbo-AbliteratedV1",
+    "revision": "ce497d288a7ddfd5d0f337c7139349d5d0236bfa",
+    "license": "apache-2.0",
+    "files": {
+      "README.md": {
+        "bytes": 2799,
+        "sha256": null,
+        "git_blob_sha1": "1a46a4c4821bc34fa1d373e5d71923ef88fa4b39"
+      },
+      "chat_template.jinja": {
+        "bytes": 4256,
+        "sha256": null,
+        "git_blob_sha1": "b11e13ef0c59aa4b052a74de766e263c5b9332ec"
+      },
+      "config.json": {
+        "bytes": 1663,
+        "sha256": null,
+        "git_blob_sha1": "f6e3f2e7b49f238df1c655b8265e699122579303"
+      },
+      "tokenizer.json": {
+        "bytes": 11422817,
+        "sha256": "79cb3c783570f1b8fe73b9ed530ae50cae9ce4b6344c0b5edefc50478847eaa4",
+        "git_blob_sha1": null
+      },
+      "tokenizer_config.json": {
+        "bytes": 9732,
+        "sha256": null,
+        "git_blob_sha1": "417d038a63fa3de29cfde265caedae14d1a58d92"
+      },
+      "Z-Image-AbliteratedV1.Q8_0.gguf": {
+        "bytes": 4280405248,
+        "sha256": "6272f0f8db9e91f5ed748c51da27f646ae2d2cb2a28460a38294192288f85298",
+        "git_blob_sha1": null
+      }
+    },
+    "weight_file": "Z-Image-AbliteratedV1.Q8_0.gguf"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "12b": {
+    "model": "shoemoney/Gemma-4-12B-Abliterated-MLX-q6",
+    "revision": "edd4c19a3edc7d4637c729fcb776e190ba0b7b25",
+    "save_id": "bench_12b_1790699667474863000",
+    "turns": 4,
+    "attempts": 4,
+    "first_attempts_accepted": 4,
+    "mean_worker_seconds": 188.468975104,
+    "mean_seconds_per_saved_turn_including_retries": 188.468975104,
+    "mean_decode_tokens_per_second": 6.8040004123489535,
+    "max_mlx_gib": 9.836266255006194,
+    "max_rss_gib": 7.184814453125,
+    "prompt_tokens": [
+      3568,
+      3814,
+      4084,
+      4214
+    ],
+    "schema_seconds": [
+      25.290615792000608,
+      29.42956487500487,
+      31.164504041000328,
+      29.75255399999878
+    ],
+    "system_swap_changes_gib": [
+      2.4415234373882413,
+      2.017822265625,
+      2.0034863278269768,
+      1.905214843340218
+    ],
+    "final_summary": "Alex and Mira have arrived at the Hornbill Observatory following a mysterious radio transmission from Dr. Aris. They have discovered that the maintenance path offers a quieter route to the service entrance and that the timing of the call suggests a significant shift in Aris's personal world.",
+    "limits": "Four cold sequential turns on M4/16 GB, not a statistical quality test. Swap counters include all applications."
+  },
+  "e4b": {
+    "model": "mlx-community/gemma-4-E4B-it-OBLITERATED-mlx-8Bit",
+    "revision": "db71b2644248b4f9e7e31ede5e6f631b870d8af5",
+    "save_id": "bench_e4b_1790700426807122000",
+    "turns": 4,
+    "attempts": 5,
+    "first_attempts_accepted": 3,
+    "mean_worker_seconds": 68.66452069775,
+    "mean_seconds_per_saved_turn_including_retries": 85.5788069165,
+    "mean_decode_tokens_per_second": 14.647271221814876,
+    "max_mlx_gib": 7.84993901848793,
+    "max_rss_gib": 7.3467559814453125,
+    "prompt_tokens": [
+      3610,
+      3752,
+      3928,
+      3915
+    ],
+    "schema_seconds": [
+      26.00329270800285,
+      26.699072333001823,
+      27.873140957999567,
+      27.550627040996915
+    ],
+    "system_swap_changes_gib": [
+      0.5369238285347819,
+      0.5260644527152181,
+      0.5084277335554361,
+      0.7923535164445639
+    ],
+    "final_summary": "Alex and Mira have reached the Hornbill Observatory, a place with a mysterious past and a recent signal from a missing scientist. They have not been followed by anyone else, but they are here to find answers to the signal and the observatory's secret.",
+    "limits": "Four cold sequential turns on M4/16 GB, not a statistical quality test. Swap counters include all applications."
+  }
+}
