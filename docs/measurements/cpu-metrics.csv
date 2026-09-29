@@ -1,0 +1,4 @@
+turn,attempt,status,load_seconds,worker_seconds,tokens_per_second,peak_rss_gib,prompt_tokens,generated_tokens,error
+1,1,accepted,29.77,271.3,6.05,9.38,2390,891,
+2,1,rejected,16.95,337.37,5.43,9.6,2895,1139,dialogue is NPC speech only; do not invent player dialogue
+2,2,accepted,18.26,373.07,4.65,9.59,2945,918,

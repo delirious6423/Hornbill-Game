@@ -1,0 +1,16 @@
+/target/
+/.local/
+/.runtime-path
+/data/
+/models/
+__pycache__/
+*.pyc
+.DS_Store
+/.env
+/.env.*
+!/.env.example
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+*.gguf
+*.safetensors

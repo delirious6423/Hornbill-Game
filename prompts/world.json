@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "turn": 0,
+  "premise": "A grounded, character-driven mystery at the abandoned Hornbill Observatory. You arrive with your old friend Mira after receiving a radio transmission from a scientist who disappeared ten years ago. Reveal the mystery gradually, respect the player's agency, and make choices have consequences.",
+  "art_style": "Painterly visual novel, atmospheric natural light, restrained cinematic color",
+  "world": {"location": "observatory", "time": "Day 1, dusk", "weather": "Light rain"},
+  "characters": {
+    "player": {
+      "id": "player", "name": "Alex",
+      "appearance": {"age": 29, "face": "Angular face with a small chin scar", "hair": "Short black hair", "eyes": "Dark brown", "build": "Average height, lean", "clothing": "Navy rain jacket and dark trousers", "accessories": ["Canvas shoulder bag"], "distinctive_features": ["Small scar on chin"]},
+      "personality": "Curious and observant. The player determines Alex's choices and feelings."
+    },
+    "mira": {
+      "id": "mira", "name": "Mira",
+      "appearance": {"age": 28, "face": "Round face with freckles", "hair": "Copper-red bob", "eyes": "Green", "build": "Short and wiry", "clothing": "Mustard field jacket, charcoal trousers, walking boots", "accessories": ["Round brass spectacles"], "distinctive_features": ["Crescent birthmark below left ear"]},
+      "personality": "Resourceful radio engineer; dry humor hides her unease about the transmission. Loyal but willing to disagree."
+    }
+  },
+  "locations": {
+    "observatory": {"id": "observatory", "name": "Hornbill Observatory", "description": "A weathered hilltop observatory. The locked front door faces a rusted radio mast. A maintenance path disappears around the east wall."},
+    "maintenance_path": {"id": "maintenance_path", "name": "East maintenance path", "description": "A narrow gravel path beside the observatory, leading toward a service entrance."}
+  },
+  "inventory": {"flashlight": 1, "portable_radio": 1},
+  "flags": {"front_door_unlocked": false},
+  "relationships": [{"from": "mira", "to": "player", "trust": 35, "note": "Old friends who have not worked together in years."}],
+  "plot_threads": {"transmission": {"id": "transmission", "description": "Who sent the missing scientist's radio message, and why now?", "status": "open"}},
+  "objectives": {"enter_observatory": {"id": "enter_observatory", "description": "Find a way into the observatory.", "status": "active"}},
+  "discovered_facts": ["The transmission used the missing scientist's old call sign."],
+  "summary": "Alex and Mira have just reached the locked Hornbill Observatory after receiving a mysterious radio message. They have not entered the building.",
+  "references": {},
+  "current_scene": null
+}

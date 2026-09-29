@@ -1,0 +1,12 @@
+{
+  "12b": {
+    "repo": "mlx-community/gemma-4-12B-it-4bit",
+    "revision": "73bcf09092aa277861d5a191b989b666f7f32e8f",
+    "weights_bytes": 6741039511
+  },
+  "e4b": {
+    "repo": "mlx-community/gemma-4-e4b-it-4bit",
+    "revision": "475b9088d29754a3379866cf5aeb6b41acd313c2",
+    "weights_bytes": 5146800534
+  }
+}

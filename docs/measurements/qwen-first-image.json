@@ -1,0 +1,92 @@
+{
+  "request": {
+    "protocol_version": 1,
+    "prompt": "Painterly visual novel, atmospheric natural light, restrained cinematic color illustration. Hornbill Observatory: A weathered hilltop observatory. The locked front door faces a rusted radio mast. A maintenance path disappears around the east wall.. Day 1, dusk. Weather: Light rain. Mood: Tense. Lighting: Dimming dusk light. Camera: Wide shot of the observatory exterior.\nMira: age 28; Round face with freckles; Copper-red bob; Green eyes; Short and wiry; wearing Mustard field jacket, charcoal trousers, walking boots; accessories: Round brass spectacles; distinctive features: Crescent birthmark below left ear. Current emotion: Serious. Pose: Leaning against the wall.\nAction: Mira explains the signal; Player searches the perimeter; Identifying the service door. Maintain the described identities and clothing. One coherent scene, no captions, dialogue bubbles or interface elements.",
+    "visual_key": "{\"characters\":[{\"appearance\":{\"accessories\":[\"Round brass spectacles\"],\"age\":28,\"build\":\"Short and wiry\",\"clothing\":\"Mustard field jacket, charcoal trousers, walking boots\",\"distinctive_features\":[\"Crescent birthmark below left ear\"],\"eyes\":\"Green\",\"face\":\"Round face with freckles\",\"hair\":\"Copper-red bob\"},\"id\":\"mira\",\"name\":\"Mira\",\"personality\":\"Resourceful radio engineer; dry humor hides her unease about the transmission. Loyal but willing to disagree.\"}],\"location\":{\"description\":\"A weathered hilltop observatory. The locked front door faces a rusted radio mast. A maintenance path disappears around the east wall.\",\"id\":\"observatory\",\"name\":\"Hornbill Observatory\"},\"references\":{},\"style\":\"Painterly visual novel, atmospheric natural light, restrained cinematic color\"}",
+    "output_path": "/Users/yo15m4/Documents/Codex/2026-09-29/project-hornbill/outputs/hornbill/data/generations/verify_20260929_183032/turn-2-1.png",
+    "reference_path": null,
+    "settings": {
+      "width": 512,
+      "height": 768,
+      "steps": 6,
+      "seed": 42,
+      "memory_limit_bytes": 9663676416,
+      "reference_strength": 0.6
+    }
+  },
+  "result": {
+    "height": 768,
+    "path": "generations/verify_20260929_183032/turn-2-1.png",
+    "width": 512
+  },
+  "metadata": {
+    "adapter": "Qwen-Image-2.1-viggle-turbo-v0.2.1-6step-lora-r128.safetensors",
+    "adapter_merged": false,
+    "adapter_revision": "bb26a0f38e5fe6c124aaccc9187a87eed5d9ed13",
+    "backend": "mflux-qwen21",
+    "decode_ms": 5499.781790997076,
+    "denoise_ms": 76439.41854200239,
+    "encode_and_reference_ms": 2619.499624997843,
+    "load_ms": 4826.7288749993895,
+    "memory_stages": [
+      {
+        "active_bytes": 4259393480,
+        "peak_bytes": 4509228576,
+        "stage": "encoded"
+      },
+      {
+        "active_bytes": 1722056,
+        "peak_bytes": 4509228576,
+        "stage": "encoder_released"
+      },
+      {
+        "active_bytes": 4689569990,
+        "peak_bytes": 5511866574,
+        "stage": "denoised"
+      },
+      {
+        "active_bytes": 2115254,
+        "peak_bytes": 5511866574,
+        "stage": "transformer_released"
+      },
+      {
+        "active_bytes": 1014170630,
+        "peak_bytes": 5511866574,
+        "stage": "decoded"
+      }
+    ],
+    "mflux_revision": "2924d0c7cd7104a1ab2f18f40d3bedcf47ba8b9c",
+    "mflux_version": "0.20.0",
+    "mlx_peak_bytes": 5511866574,
+    "mlx_version": "0.32.3",
+    "model": "mlx-community/Qwen-Image-2.1-mflux-q4",
+    "model_revision": "746a58556820933a2df5c75887a2570f1ad200c0",
+    "peak_rss_bytes": 5018746880,
+    "prompt_tokens": 187,
+    "reference_mode": "text_to_image",
+    "settings": {
+      "height": 768,
+      "memory_limit_bytes": 9663676416,
+      "reference_strength": 0.6,
+      "seed": 42,
+      "steps": 6,
+      "width": 512
+    },
+    "sigmas": [
+      1.0,
+      0.9375,
+      0.875,
+      0.75,
+      0.5,
+      0.25,
+      0.0
+    ],
+    "stderr": "\ud83d\udce6 Loading 1 LoRA file(s)...\n\ud83d\udd27 Applying LoRA: Qwen-Image-2.1-viggle-turbo-v0.2.1-6step-lora-r128.safetensors (scale=1.0)\n   \u2705 Applied to 227 layers (454/454 keys matched)\n\u2705 All LoRA weights applied successfully\n\r  0%|          | 0/6 [00:00<?, ?it/s]\r 17%|\u2588\u258b        | 1/6 [00:12<01:04, 12.87s/it]\r 33%|\u2588\u2588\u2588\u258e      | 2/6 [00:23<00:45, 11.31s/it]\r 50%|\u2588\u2588\u2588\u2588\u2588     | 3/6 [00:34<00:34, 11.52s/it]\r 67%|\u2588\u2588\u2588\u2588\u2588\u2588\u258b   | 4/6 [00:48<00:24, 12.22s/it]\r 83%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258e | 5/6 [01:01<00:12, 12.73s/it]\r100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 6/6 [01:16<00:00, 13.38s/it]\r100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 6/6 [01:16<00:00, 12.74s/it]\n",
+    "swap_after_bytes": 2092034949,
+    "swap_before_bytes": 2100423557,
+    "total_ms": 102354.16537499988,
+    "worker_exited": true,
+    "worker_pid": 18649,
+    "worker_total_ms": 103228.61479200001
+  }
+}

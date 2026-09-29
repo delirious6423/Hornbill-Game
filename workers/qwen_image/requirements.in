@@ -1,0 +1,3 @@
+# Current Qwen 2.1 LoRA mapping and Metal text-prefix cache, absent from the 0.20 wheel.
+mflux @ https://github.com/mflux-community/mflux/archive/2924d0c7cd7104a1ab2f18f40d3bedcf47ba8b9c.zip
+mlx==0.32.3

@@ -1,0 +1,22 @@
+{
+  "recorded_at": "2026-09-29T11:46:19.071593+00:00",
+  "cancel_before_story_commit": {
+    "phase": "Cancelled",
+    "turn_remained": 2,
+    "running_workers": 0
+  },
+  "cancel_after_story_commit": {
+    "recorded_at": "2026-09-29T11:45:13.951531+00:00",
+    "job": {
+      "id": 1790682242043,
+      "save": "story_1790681920698",
+      "running": false,
+      "phase": "Cancelled",
+      "error": "Cancelled. Any completed story turn is still saved.",
+      "started_ms": 1790682242043
+    },
+    "turn": 2,
+    "previous_image_retained": true,
+    "remaining_workers": []
+  }
+}

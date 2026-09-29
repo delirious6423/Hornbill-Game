@@ -1,0 +1,20 @@
+{
+  "narration": "[Scripted demo] Rain taps the observatory dome. Mira turns the radio dial, and three clear knocks emerge from the static. She points toward the maintenance path. This fixed scene tests the application; it does not respond intelligently to your action.",
+  "dialogue": [{"speaker":"mira","text":"Three knocks. Someone is listening."}],
+  "choices": ["Examine the radio", "Ask Mira about the signal", "Look toward the maintenance path"],
+  "state_changes": {
+    "new_characters":[], "new_locations":[], "inventory":[],
+    "flags":[{"flag":"heard_three_knocks","value":true}],
+    "relationships":[], "plot_threads":[], "objectives":[],
+    "discovered_facts":["The radio signal contains three knocks."],
+    "weather":null,
+    "summary":"Alex and Mira remain outside the locked observatory. The radio has transmitted three knocks; their source is unresolved. This is a scripted test save."
+  },
+  "scene": {
+    "location":"observatory", "time":"Day 1, dusk",
+    "characters":[{"id":"player","emotion":"attentive","pose":"Holding the radio"},{"id":"mira","emotion":"uneasy","pose":"Listening beside Alex"}],
+    "actions":["The radio transmits three knocks"],
+    "mood":"quiet suspense", "lighting":"fading daylight", "camera":"medium two-shot", "visual_importance":0.5
+  },
+  "memory_updates":[{"text":"The radio transmitted three knocks outside the observatory.","tags":["observatory","transmission"],"importance":0.7}]
+}

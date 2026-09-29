@@ -1,0 +1,40 @@
+{
+  "recorded_at": "2026-09-29T14:06:48.551964+00:00",
+  "save_id": "story_1790681920698",
+  "turn": 4,
+  "server_pid": 24985,
+  "inference_workers_remaining": 0,
+  "preferences": {
+    "image": {
+      "height": 768,
+      "memory_limit_bytes": 9663676416,
+      "reference_strength": 0.6000000238418579,
+      "seed": 42,
+      "steps": 6,
+      "width": 512
+    },
+    "image_policy": "smart",
+    "model": "12b",
+    "visual_threshold": 0.6499999761581421
+  },
+  "checks": {
+    "new_story": true,
+    "typed_action": true,
+    "choice_action": true,
+    "real_story_then_image": true,
+    "journal_notes_persist_after_server_restart": true,
+    "local_reference_upload": true,
+    "real_reference_guided_image": true,
+    "manual_image_reuse": true,
+    "cancel_before_story_commit": true,
+    "cancel_after_story_commit": true,
+    "bounded_schema_summary_rerun": true,
+    "narrow_and_desktop_layout": true
+  },
+  "not_yet_verified": [
+    "GUI export download",
+    "sustained long sessions",
+    "new bounded schema via GGUF",
+    "other image resolutions"
+  ]
+}

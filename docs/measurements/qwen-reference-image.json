@@ -1,0 +1,98 @@
+{
+  "created_at": "2026-09-29T13:47:57.722Z",
+  "error": null,
+  "finished_at": "2026-09-29T13:48:41.066Z",
+  "id": 4,
+  "metadata": {
+    "adapter": "Qwen-Image-2.1-viggle-turbo-v0.2.1-6step-lora-r128.safetensors",
+    "adapter_merged": false,
+    "adapter_revision": "bb26a0f38e5fe6c124aaccc9187a87eed5d9ed13",
+    "backend": "mflux-qwen21",
+    "decode_ms": 3687.522249994799,
+    "denoise_ms": 30114.418125005617,
+    "encode_and_reference_ms": 3114.434124996478,
+    "load_ms": 1325.2476670022588,
+    "memory_stages": [
+      {
+        "active_bytes": 4571646144,
+        "peak_bytes": 4837768616,
+        "stage": "encoded"
+      },
+      {
+        "active_bytes": 313974720,
+        "peak_bytes": 4837768616,
+        "stage": "encoder_released"
+      },
+      {
+        "active_bytes": 5001429430,
+        "peak_bytes": 5831524798,
+        "stage": "denoised"
+      },
+      {
+        "active_bytes": 313974694,
+        "peak_bytes": 5831524798,
+        "stage": "transformer_released"
+      },
+      {
+        "active_bytes": 1326030070,
+        "peak_bytes": 5831524798,
+        "stage": "decoded"
+      }
+    ],
+    "mflux_revision": "2924d0c7cd7104a1ab2f18f40d3bedcf47ba8b9c",
+    "mflux_version": "0.20.0",
+    "mlx_peak_bytes": 5831524798,
+    "mlx_version": "0.32.3",
+    "model": "mlx-community/Qwen-Image-2.1-mflux-q4",
+    "model_revision": "746a58556820933a2df5c75887a2570f1ad200c0",
+    "peak_rss_bytes": 5303762944,
+    "prompt_tokens": 201,
+    "reference_mode": "image_to_image_composition",
+    "settings": {
+      "height": 768,
+      "memory_limit_bytes": 9663676416,
+      "reference_strength": 0.6,
+      "seed": 42,
+      "steps": 6,
+      "width": 512
+    },
+    "sigmas": [
+      1.0,
+      0.9375,
+      0.875,
+      0.75,
+      0.5,
+      0.25,
+      0.0
+    ],
+    "stderr": "📦 Loading 1 LoRA file(s)...\n🔧 Applying LoRA: Qwen-Image-2.1-viggle-turbo-v0.2.1-6step-lora-r128.safetensors (scale=1.0)\n   ✅ Applied to 227 layers (454/454 keys matched)\n✅ All LoRA weights applied successfully\n\r  0%|          | 0/3 [00:00<?, ?it/s]\r 33%|███▎      | 1/3 [00:11<00:22, 11.30s/it]\r 67%|██████▋   | 2/3 [00:20<00:10, 10.14s/it]\r100%|██████████| 3/3 [00:30<00:00,  9.84s/it]\r100%|██████████| 3/3 [00:30<00:00, 10.03s/it]\n",
+    "swap_after_bytes": 1915874181,
+    "swap_before_bytes": 1915874181,
+    "total_ms": 42857.2399170007,
+    "worker_exited": true,
+    "worker_pid": 24244,
+    "worker_total_ms": 43335.383709
+  },
+  "request": {
+    "output_path": "/Users/yo15m4/Documents/Codex/2026-09-29/project-hornbill/outputs/hornbill/data/generations/story_1790681920698/turn-2-4.png",
+    "prompt": "Painterly visual novel, atmospheric natural light, restrained cinematic color illustration. Hornbill Observatory: A weathered hilltop observatory. The locked front door faces a rusted radio mast. A maintenance path disappears around the east wall.. Day 1, dusk. Weather: Light rain. Mood: Tense. Lighting: Fading daylight, interior gloom.. Camera: Medium shot of the radio and Mira..\nMira: age 28; Round face with freckles; Copper-red bob; Green eyes; Short and wiry; wearing Mustard field jacket, charcoal trousers, walking boots; accessories: Round brass spectacles; distinctive features: Crescent birthmark below left ear. Current emotion: Concerned. Pose: Standing beside the radio, arms crossed.\nAction: The radio hums softly, picking up faint interference.; The rain begins to patter against the glass of the observatory.. Maintain the described identities and clothing. One coherent scene, no captions, dialogue bubbles or interface elements.",
+    "protocol_version": 1,
+    "reference_path": "/Users/yo15m4/Documents/Codex/2026-09-29/project-hornbill/outputs/hornbill/data/references/story_1790681920698/mira_1790689669163.png",
+    "settings": {
+      "height": 768,
+      "memory_limit_bytes": 9663676416,
+      "reference_strength": 0.6,
+      "seed": 42,
+      "steps": 6,
+      "width": 512
+    },
+    "visual_key": "{\"characters\":[{\"appearance\":{\"accessories\":[\"Round brass spectacles\"],\"age\":28,\"build\":\"Short and wiry\",\"clothing\":\"Mustard field jacket, charcoal trousers, walking boots\",\"distinctive_features\":[\"Crescent birthmark below left ear\"],\"eyes\":\"Green\",\"face\":\"Round face with freckles\",\"hair\":\"Copper-red bob\"},\"id\":\"mira\",\"name\":\"Mira\",\"personality\":\"Resourceful radio engineer; dry humor hides her unease about the transmission. Loyal but willing to disagree.\"}],\"location\":{\"description\":\"A weathered hilltop observatory. The locked front door faces a rusted radio mast. A maintenance path disappears around the east wall.\",\"id\":\"observatory\",\"name\":\"Hornbill Observatory\"},\"references\":{\"mira\":[\"references/story_1790681920698/mira_1790689669163.png\"]},\"style\":\"Painterly visual novel, atmospheric natural light, restrained cinematic color\"}"
+  },
+  "result": {
+    "height": 768,
+    "path": "generations/story_1790681920698/turn-2-4.png",
+    "width": 512
+  },
+  "status": "succeeded",
+  "turn": 2
+}

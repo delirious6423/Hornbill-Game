@@ -1,0 +1,30 @@
+{
+  "recorded_at": "2026-09-29T11:27:28.417081+00:00",
+  "checks": [
+    {
+      "check": "API requires session key",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "check": "Authorized local reads work",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "check": "Other origins cannot submit actions",
+      "status": 403,
+      "passed": true
+    },
+    {
+      "check": "Stale choices rejected before inference",
+      "status": 400,
+      "passed": true
+    },
+    {
+      "check": "Saved illustration is served as a PNG",
+      "status": 200,
+      "passed": true
+    }
+  ]
+}

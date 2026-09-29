@@ -1,0 +1,91 @@
+{
+  "base": {
+    "repo": "mlx-community/Qwen-Image-2.1-mflux-q4",
+    "revision": "746a58556820933a2df5c75887a2570f1ad200c0",
+    "files": {
+      "LICENSE": {
+        "bytes": 7831,
+        "sha256": null
+      },
+      "processor/chat_template.jinja": {
+        "bytes": 5292,
+        "sha256": null
+      },
+      "processor/tokenizer.json": {
+        "bytes": 11422650,
+        "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506"
+      },
+      "processor/tokenizer_config.json": {
+        "bytes": 417,
+        "sha256": null
+      },
+      "text_encoder/0.safetensors": {
+        "bytes": 2138739328,
+        "sha256": "c1cb30320ce8a482d353dd821f8123f15b773ddb00981580142c1a1434326c9f"
+      },
+      "text_encoder/1.safetensors": {
+        "bytes": 2119029339,
+        "sha256": "5f611e1d8ac0a245f80a79a03b1bfbe0e0ab4164462b8ed2579d16a225a0d601"
+      },
+      "text_encoder/model.safetensors.index.json": {
+        "bytes": 51332,
+        "sha256": null
+      },
+      "transformer/0.safetensors": {
+        "bytes": 2128887354,
+        "sha256": "ce0e8ab688a5cec5111972d7231c7fcc672e10f71602d24825ef375d1a8b8764"
+      },
+      "transformer/1.safetensors": {
+        "bytes": 1878195881,
+        "sha256": "e13feedb023521119a7d5d01c7f16b8ea66970157df3f6e6716bfbe76007a0ab"
+      },
+      "transformer/model.safetensors.index.json": {
+        "bytes": 49743,
+        "sha256": null
+      },
+      "vae/0.safetensors": {
+        "bytes": 1323975289,
+        "sha256": "4ef2508826e6a0679ae43160073df9249061237a82e745bfb196c3505f0543f6"
+      },
+      "vae/model.safetensors.index.json": {
+        "bytes": 15704,
+        "sha256": null
+      }
+    },
+    "license": "qwen-research"
+  },
+  "turbo": {
+    "repo": "Viggle/Qwen-Image-2.1-viggle-turbo",
+    "revision": "bb26a0f38e5fe6c124aaccc9187a87eed5d9ed13",
+    "files": {
+      "LICENSE": {
+        "bytes": 7831,
+        "sha256": null
+      },
+      "NOTICE": {
+        "bytes": 2131,
+        "sha256": null
+      },
+      "Qwen-Image-2.1-viggle-turbo-v0.2.1-6step-lora-r128.safetensors": {
+        "bytes": 679604800,
+        "sha256": "bafb91d0047df3f9b8a5a850b0c967f051164314d8aad778dfa34d9c24ec345b"
+      },
+      "README.md": {
+        "bytes": 20674,
+        "sha256": null
+      }
+    },
+    "adapter": "Qwen-Image-2.1-viggle-turbo-v0.2.1-6step-lora-r128.safetensors",
+    "steps": 6,
+    "sigmas": [
+      1.0,
+      0.9375,
+      0.875,
+      0.75,
+      0.5,
+      0.25,
+      0.0
+    ]
+  },
+  "mflux_revision": "2924d0c7cd7104a1ab2f18f40d3bedcf47ba8b9c"
+}
