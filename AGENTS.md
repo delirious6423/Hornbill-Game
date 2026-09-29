@@ -19,11 +19,11 @@ The user requested a Google Drive worklog in a dedicated project folder whenever
 
 ## Implementation guardrails
 
-The story/image/UI loop and bounded-memory generation milestone are verified; performance and finalization remain in progress. Checkpoint 0008 records the completed requested image/story model replacements and the active goal status. Both profiles and the new GUI illustration are verified; use the current handoff for the remaining performance and finalization milestone. The earlier checkpoint 0005 pause is historical. SQLite owns canonical truth; validate before atomic commits. StoryBackend isolates model details. Retain GGUF as the explicitly approved compatibility fallback. Do not advance to images or Tauri until the local story loop and quality/memory gate pass.
+The local MVP is implemented and checkpoint 0010 records its final verification and delivery steps. Read HANDOFF.md and the external source-delivery receipts before resuming. After the verified checkpoint is delivered, follow fresh user direction for further work. Earlier pauses and running-process snapshots are historical. SQLite owns canonical truth; validate before atomic commits. StoryBackend isolates model details. Keep GGUF as the explicitly approved compatibility fallback.
 
-Use the existing project-local runtime via `scripts/env.sh` and provided wrappers. Read `.runtime-path` before setup. No unnecessary downloads or global installations. CPU and scripted-demo results do not establish Metal performance.
+Use the existing project-local runtime via `scripts/env.sh` and provided wrappers. Read `.runtime-path` before setup. No unnecessary model downloads or global installations. CPU/scripted results do not establish Metal performance. Keep runtime/model files downloaded in this iCloud-managed workspace.
 
-Checkpoint 0008 records 45 passing tests, four-turn checks for both selected Gemma profiles, a real Z-Image GUI result and preserved review state. Model files offloaded by iCloud are now rejected before reads; keep the runtime downloaded. Both new story profiles increased system swap and require further performance/quality work. Preserve historical and failed audits; follow current HANDOFF.md and later user steering.
+Checkpoint 0010 records 50 passing automated tests, both selected Gemma profiles, eight real 12B turns, successful Z-Image and GGUF checks, clean source/dependency rehearsal, browser export and unchanged review state. 12B still increases swap and briefly reaches warning pressure; both story models can repeat or invent narrative details. Do not describe typed-state validation as proof of prose truth. Preserve historical/failed audits and the original environments/files retained during runtime recovery.
 
 ## GitHub snapshot
 

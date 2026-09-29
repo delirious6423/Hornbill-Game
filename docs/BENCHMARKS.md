@@ -8,6 +8,9 @@ Each model receives the same starting world, actions, seed and generation limits
 
 | Field | Meaning and boundary |
 |---|---|
+| `schema_prepare_ms` | llguidance tokenizer conversion plus grammar/mask setup; compare this total against historical Outlines preparation. |
+| `schema_compile_ms` | With llguidance, grammar creation alone (about 2 ms); historical Outlines reports included the much larger index build. Do not compare the field without decoder/version context. |
+| `decoder_mask_ms` | CPU-side mask/consume time, excluding asynchronous Metal kernel execution. |
 | `load_ms` | MLX: evaluated weight loading, after tokenizer preparation. GGUF: server launch through healthy/ready. These boundaries differ; compare worker total time for user-visible cost. |
 | `ttft_ms` | MLX: start of generation through the first generated token, including prefill. Excludes weight load. GGUF currently uses a nonstreaming completion and records null rather than estimating TTFT. |
 | `generation_tps` | Runtime-reported decode throughput; record generated length and prompt tokens alongside it. |

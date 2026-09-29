@@ -249,9 +249,9 @@ async fn new_save(State(app): State<App>, Json(body): Json<NewSave>) -> Api<Json
 }
 async fn state(State(app): State<App>, Path(save): Path<String>) -> Api<Json<Value>> {
     let db = app.db()?;
-    Ok(Json(
-        json!({"state":db.load(&save)?,"turn":db.latest_turn(&save)?,"image":db.latest_image(&save)?,"preferences":preferences(&db,&save)?}),
-    ))
+    Ok(Json(db.read_snapshot(|db| {
+        Ok(json!({"state":db.load(&save)?,"turn":db.latest_turn(&save)?,"image":db.latest_image(&save)?,"preferences":preferences(db,&save)?}))
+    })?))
 }
 async fn set_preferences(
     State(app): State<App>,

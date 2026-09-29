@@ -1,13 +1,13 @@
-# Hornbill review — checkpoint 0008
+# Hornbill review — checkpoint 0010
 
-Your selected replacements are installed: **Gemma 12B Q6**, **Gemma E4B 8-bit**, and **Z-Image-Turbo with the exact BennyDaBall Q8_0 encoder**. Both story profiles completed four turns and a summary update; 45 automated tests pass. The superseded downloads were removed under your approval.
+The local MVP is ready to inspect with your selected **Gemma 12B Q6**, **Gemma E4B 8-bit** and **Z-Image-Turbo/BennyDaBall Q8_0** models. All **50 automated tests** pass, including a clean source/dependency rehearsal. Superseded model downloads were removed under your approval.
 
-![The preserved turn-four scene with its new illustration](assets/hornbill-app.jpg)
+![The preserved review scene](assets/hornbill-app.jpg)
 
-Open the Hornbill tab and select **The Observatory Signal — Turn 4**. Your story, notes and Mira reference remain intact. **Settings** shows both new story choices; 12B + Smart, 512×768 and seed 42 are preserved, with nine image steps. **Story journal** shows the saved summary and world notes. There is also an unused same-title turn-0 save; all benchmark and failed-attempt records were preserved.
+Open the Hornbill tab and select **The Observatory Signal — Turn 4**. Your story, notes, reference and illustration are intact. **Settings** chooses the model and illustration schedule. **Story journal** shows the summary/world notes and exports the story with its generation record. Accepted turns save automatically. Benchmarks and failed attempts remain in the saved-story list.
 
-12B averaged **188.47 seconds per saved turn**, with all first attempts accepted. E4B averaged **85.58 seconds including its one repair**. The fresh reference illustration took **55.13 seconds**. Both story models increased system swap during these samples. These are compatibility checks, not a guarantee of long-story consistency; [validation](VALIDATION.md) includes concrete weaknesses and complete audits.
+The new decoder reduced average four-turn results to **112 seconds per saved turn for 12B**, and **46 seconds for E4B including one repair**. The reference illustration took **55 seconds**. 12B still increased swap and briefly reached warning memory pressure. E4B is faster but showed weaker story continuity. The eight-turn 12B check passed state/summary validation while still repeating dialogue and introducing unsupported narrative details. Read [validation](VALIDATION.md) for the measurements and concrete limits.
 
-To reopen a stopped app, run `./hornbill ui` from the source directory. Its private launch link is local `data/ui-session.json`; keep that file private. A fresh clone needs the local setup in [README](../README.md); source backups omit weights, runtime installations, live saves and credentials.
+To reopen a stopped app, run `./hornbill ui` from this source directory. Keep the launching Terminal open. New installations use the steps in [README](../README.md). The app runs entirely locally after setup. Source backups contain code, documentation and test evidence; weights, runtime installations, live saves and private session keys stay local.
 
-The next milestone is reducing repeated decoder preparation and measuring memory pressure in a more isolated run, followed by longer story-consistency checks. Browser export-download confirmation and clean-machine packaging remain open. Read [HANDOFF](HANDOFF.md) and [WORKLOG](WORKLOG.md) before continuing.
+Save/export consistency, browser download, bounded long-run retrieval and clean dependencies are checked. Future work can focus on story quality, optional native packaging or stronger reference identity. The [handoff](HANDOFF.md) and [worklog](WORKLOG.md) contain the final checkpoint and exact resume paths.

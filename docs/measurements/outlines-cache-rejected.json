@@ -1,0 +1,18 @@
+{
+  "profile": "12b",
+  "decoder_cache_key": "0c5ac0ead3a52c69d6ded378250414c2b9aa6e1a063a363a306fe9c884faf0fd",
+  "decoder_cache_status": "miss",
+  "decoder_cache_bytes": 0,
+  "decoder_cache_read_ms": 0.016250000044237822,
+  "decoder_cache_write_ms": 4904.945832997328,
+  "schema_compile_ms": 24698.535916002584,
+  "decoder_cache_write_failed": true,
+  "schema_prepare_ms": 29715.702250003233,
+  "probe_ms": 29792.696625001554,
+  "valid_tokens": 352,
+  "visited_states": 215,
+  "transition_trace_sha256": "fde6a7afb24d58a0d9646ed30b15475bb7537960d3c0280a1461e8151a1bfcc3",
+  "full_scene_accepted": true,
+  "invalid_identifier_rejected": true,
+  "peak_rss_bytes": 7097696256
+}

@@ -1,0 +1,94 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.12s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running unittests src/lib.rs (/Users/yo15m4/Documents/Codex/2026-09-29/project-hornbill/work/clean-source-runtime/target/debug/deps/hornbill-6b405624d8818d58)
+
+running 3 tests
+test ui::preference_tests::current_image_settings_keep_an_explicit_step_choice ... ok
+test ui::preference_tests::old_image_settings_migrate_without_changing_story_or_seed ... ok
+test model_profiles::tests::stale_or_incomplete_installs_are_not_reported_ready ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/Users/yo15m4/Documents/Codex/2026-09-29/project-hornbill/work/clean-source-runtime/target/debug/deps/hornbill-47ea92ec7ea6fb1a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/images.rs (/Users/yo15m4/Documents/Codex/2026-09-29/project-hornbill/work/clean-source-runtime/target/debug/deps/images-118142527b5fd4e5)
+
+running 5 tests
+test scheduling_honors_manual_mode_and_canonical_identity_changes ... ok
+test image_asset_paths_cannot_escape_the_save_directory ... ok
+test old_database_upgrades_without_replacing_its_save ... ok
+test minor_scenes_reuse_the_file_without_starting_an_image_worker ... ok
+test failed_image_keeps_story_and_last_valid_illustration ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/process.rs (/Users/yo15m4/Documents/Codex/2026-09-29/project-hornbill/work/clean-source-runtime/target/debug/deps/process-17871bb49824f2cd)
+
+running 7 tests
+test two_process_leases_cannot_overlap ... ok
+test oversized_stdout_is_rejected_without_waiting_for_process_timeout ... ok
+test stdout_protocol_and_stderr_are_drained_and_worker_is_reaped ... ok
+test nonzero_exit_is_not_an_accepted_generation ... ok
+test timeout_kills_worker_and_releases_the_single_flight_lease ... ok
+test worker_cannot_leave_an_inference_descendant_running ... ok
+test aborting_a_ui_job_kills_the_worker_group ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.31s
+
+     Running tests/story.rs (/Users/yo15m4/Documents/Codex/2026-09-29/project-hornbill/work/clean-source-runtime/target/debug/deps/story-dd073459865e779d)
+
+running 17 tests
+test every_fourth_turn_requires_a_memory_summary ... ok
+test canonical_identity_cannot_be_rewritten ... ok
+test model_cannot_invent_the_players_spoken_dialogue ... ok
+test active_context_does_not_grow_with_full_world_or_transcript ... ok
+test semantic_errors_cannot_change_the_original_state ... ok
+test a_stale_displayed_choice_does_not_start_a_generation ... ok
+test bad_attempt_rolls_back_a_state_update_inside_the_transaction ... ok
+test strict_json_rejects_missing_unknown_and_trailing_data ... ok
+test world_notes_are_app_owned_and_retrieved_in_a_bounded_subset ... ok
+test exhausted_retries_do_not_advance_save_or_append_scenes ... ok
+test save_creation_never_overwrites_an_existing_game ... ok
+test related_reads_keep_one_snapshot_across_a_concurrent_commit ... ok
+test retrieval_uses_structured_events_without_copying_old_narrative_style ... ok
+test malformed_reply_is_audited_then_repaired_from_unchanged_state ... ok
+test stale_commit_rolls_back_all_writes ... ok
+test repair_identifies_a_nested_schema_error_without_relaxing_the_contract ... ok
+test older_relevant_memory_survives_many_turns_and_reopening ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.91s
+
+   Doc-tests hornbill
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+[transformers] PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+test_encoder_rejects_unknown_layers_and_output_head (test_model_replacements.ModelReplacementTests.test_encoder_rejects_unknown_layers_and_output_head) ... ok
+test_image_validation_preserves_existing_output (test_model_replacements.ModelReplacementTests.test_image_validation_preserves_existing_output) ... ok
+test_offloaded_models_are_refused_without_opening_them (test_model_replacements.ModelReplacementTests.test_offloaded_models_are_refused_without_opening_them) ... ok
+test_q8_repacking_preserves_signed_extremes_and_scales (test_model_replacements.ModelReplacementTests.test_q8_repacking_preserves_signed_extremes_and_scales) ... ok
+test_q8_repacking_rejects_invalid_scale (test_model_replacements.ModelReplacementTests.test_q8_repacking_rejects_invalid_scale) ... ok
+test_story_weight_hash_detects_same_size_corruption (test_model_replacements.ModelReplacementTests.test_story_weight_hash_detects_same_size_corruption) ... ok
+test_bad_request_returns_one_machine_readable_error (test_protocol.WorkerProtocolTests.test_bad_request_returns_one_machine_readable_error) ... ok
+test_gguf_checks_offloaded_libraries_before_starting_the_runtime (test_protocol.WorkerProtocolTests.test_gguf_checks_offloaded_libraries_before_starting_the_runtime) ... ok
+test_image_worker_bounds_input_before_loading_weights (test_protocol.WorkerProtocolTests.test_image_worker_bounds_input_before_loading_weights) ... ok
+test_image_worker_rejects_bad_protocol_without_importing_metal (test_protocol.WorkerProtocolTests.test_image_worker_rejects_bad_protocol_without_importing_metal) ... ok
+test_local_model_is_required_for_gguf (test_protocol.WorkerProtocolTests.test_local_model_is_required_for_gguf) ... ok
+test_oversized_request_is_refused (test_protocol.WorkerProtocolTests.test_oversized_request_is_refused) ... ok
+test_worker_validates_envelope_without_importing_mlx (test_protocol.WorkerProtocolTests.test_worker_validates_envelope_without_importing_mlx) ... ok
+test_decoder_closes_memory_array_before_runaway_repetition (test_schema_contract.DecoderContractTests.test_decoder_closes_memory_array_before_runaway_repetition) ... ok
+test_decoder_refuses_invalid_sample_and_unknown_constraints (test_schema_contract.DecoderContractTests.test_decoder_refuses_invalid_sample_and_unknown_constraints) ... ok
+test_inventory_grammar_rejects_zero_and_out_of_range_deltas (test_schema_contract.DecoderContractTests.test_inventory_grammar_rejects_zero_and_out_of_range_deltas) ... ok
+test_native_decoder_preserves_newlines_unicode_and_independent_turns (test_schema_contract.DecoderContractTests.test_native_decoder_preserves_newlines_unicode_and_independent_turns) ... ok
+test_proper_names_remain_prose_while_memory_tags_are_ids (test_schema_contract.DecoderContractTests.test_proper_names_remain_prose_while_memory_tags_are_ids) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 1.180s
+
+OK

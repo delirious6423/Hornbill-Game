@@ -1,0 +1,15 @@
+{
+  "profile": "e4b",
+  "decoder_tokenizer_ms": 1264.3382080059382,
+  "schema_compile_ms": 1.9633339979918674,
+  "structured_decoder": "llguidance/1.8.0",
+  "schema_prepare_ms": 1266.8963329997496,
+  "decoder_mask_ms": 10.16479688405525,
+  "decoder_mask_calls": 353,
+  "metal_replay_ms": 225.86375000537373,
+  "valid_tokens": 352,
+  "all_teacher_forced_tokens_allowed": true,
+  "only_eos_allowed_after_scene": true,
+  "mlx_peak_bytes": 3966364,
+  "peak_rss_bytes": 1286078464
+}

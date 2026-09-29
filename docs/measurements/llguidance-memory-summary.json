@@ -1,0 +1,24 @@
+{
+  "sample_count": 53,
+  "start": "2026-09-29T17:43:39.759529+00:00",
+  "end": "2026-09-29T17:52:23.313637+00:00",
+  "pressure_levels": [
+    "1",
+    "2"
+  ],
+  "normal_pressure_level": 1,
+  "max_observed_simultaneous_worker_pids": 1,
+  "swap_in_bytes_over_sample": 2020245504,
+  "swap_out_bytes_over_sample": 2042363904,
+  "limits": "Read-only 10-second samples began after the first 12B turn started and cover the whole Mac. Sampling does not prove absence of pressure peaks between observations. Worker serialization is also covered by lock/lifecycle tests.",
+  "pressure_source": "https://raw.githubusercontent.com/apple-oss-distributions/xnu/main/bsd/kern/kern_memorystatus_notify.c",
+  "pressure_sample_counts": {
+    "normal": 51,
+    "warning": 2,
+    "critical": 0
+  },
+  "warning_timestamps": [
+    "2026-09-29T17:45:30.552636+00:00",
+    "2026-09-29T17:47:31.427867+00:00"
+  ]
+}

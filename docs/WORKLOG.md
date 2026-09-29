@@ -76,3 +76,19 @@
 - With explicit user approval, removed only superseded qwen21, 12b and e4b downloads after checks. Their combined logical size is 20.71 GiB, not claimed physical space reclaimed. Saves, images, source, audits and GGUF remain.
 - Updated README, runtime/license notes, validation and review guides. HANDOFF.md contains exact pins, runtime repair paths, active app state, evidence, delivery authorities and remaining performance/finalization work. Drive and GitHub use the existing project destinations; external receipts identify the final verified commit and source ZIP for this checkpoint.
 - Drive checkpoint 0008 readback verified the complete text, six headings, native date chip and preserved previous history at 17:13:59 UTC. Worklog sync completed; GitHub and source-archive verification are recorded in the external checkpoint 0008 delivery receipts.
+
+## 2026-09-29 — Checkpoint 0009: compact decoder and compaction continuity
+
+- Replaced the memory-heavy Outlines index with llguidance 1.8.0; same Rust schema and independent validation. Full-tokenizer/Metal probes passed for both selected models. Decoder preparation is about 1.26 seconds; 47 automated tests, formatting and Clippy pass.
+- Rejected disk-cache experiment after 6.61 GiB decoder-only RSS and oversized serialization. Preserved evidence under work/.
+- Real comparison remains active at this checkpoint: 12B four first-attempt turns complete, E4B in progress with one repair so far. Keep process/session handles from HANDOFF.md; do not restart or overwrite checkpoint-0008 measurements.
+- Confirmed browser Export downloads the exact review JSON. Canonical review story remains turn 4.
+- Trigger: first opportunity after compaction, since exact 85% telemetry is unavailable. Current remote source delivery remains checkpoint 0008 until the new comparison and source publication finish. Full MVP goal remains active.
+
+## 2026-09-29 — Checkpoint 0010: local MVP ready for review
+
+- Completed the compact-decoder comparison: 12B 112.22 seconds/turn; E4B 46.47 including repair. The same exact models remain. Decoder setup is about 1.3 seconds. 12B still causes swap and warning pressure; E4B was lighter in the sample.
+- Added consistent export/UI read snapshots. All 50 automated tests, formatting, Clippy and release build pass in the working project and clean source/dependency rehearsal. Verified browser download, 48-turn scripted retrieval persistence and eight real 12B turns with both summary updates.
+- Documented repeated dialogue and unsupported narrative details; the revised prompt does not eliminate these limitations. No claim of perfect prose truth, swap-free 12B use or exact face identity.
+- Repaired six iCloud-offloaded GGUF runtime files from the existing checksum-verified archive; added a pre-launch check and regression, preserved originals/failure audit. The retained original instruction-model GGUF fallback passed one current-schema Metal turn in 127.06 seconds, with 10.01 decode tokens/s and 7.95 GiB child-process RSS. Its private server and worker exited. This verifies the Mac adapter smoke path, not an abliterated equivalent, a long-run quality result or another hardware platform.
+- Rebuilt/reopened the app with the original review story unchanged at turn 4. Saved a fresh local export, screenshot, review guide, validation and this handoff. Final GitHub/Drive source deliveries are identified by the external checkpoint-0010 receipts. Exact 85% telemetry remains unavailable; this is the final milestone/handoff checkpoint.

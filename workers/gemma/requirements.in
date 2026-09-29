@@ -2,4 +2,4 @@
 # This immutable upstream revision includes its text-only architecture mapping.
 mlx-lm @ git+https://github.com/ml-explore/mlx-lm.git@3051e26bc72b8ab426af17d14c5599447eb306a5
 mlx==0.32.3
-outlines==1.3.3
+llguidance==1.8.0

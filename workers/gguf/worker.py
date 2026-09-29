@@ -20,7 +20,7 @@ import urllib.error
 import urllib.request
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"gemma"))
-from worker import swap_bytes, validate_request
+from worker import require_downloaded, swap_bytes, validate_request
 
 
 def generate(args, request, meta):
@@ -30,6 +30,13 @@ def generate(args, request, meta):
     binary=shutil.which(str(args.llama_binary))
     if not binary:
         raise ValueError("llama-server is missing; run ./scripts/gguf.sh setup or pass --llama-binary")
+    require_downloaded(args.model)
+    executable = Path(binary).resolve()
+    require_downloaded(executable)
+    # The macOS release loads adjacent dylibs even for --version. Detect iCloud
+    # placeholders before the dynamic loader can block trying to hydrate them.
+    for library in executable.parent.glob("*.dylib"):
+        require_downloaded(library)
     # No external endpoint and no proxy inheritance; this server serves one worker.
     with socket.socket() as reservation:
         reservation.bind(("127.0.0.1",0))
@@ -104,12 +111,17 @@ def generate(args, request, meta):
             if len(tokens)+settings["max_tokens"]>settings["context_tokens"]:
                 raise ValueError("Prompt + reserved output exceeds context budget; reduce context or output size")
             generation_start=time.perf_counter()
+            # Penalize repeated prose sequences without relaxing JSON grammar.
+            # Quote/newline breakers avoid penalizing the repeated schema keys.
+            sampling={"dry_multiplier":0.8,"dry_base":1.75,"dry_allowed_length":3,
+                      "dry_penalty_last_n":512,"dry_sequence_breakers":["\n",":","\"","*"]}
+            meta["sampling"]=sampling
             # /completion consumes the already-rendered native chat template and
             # provides exact timings and raw JSON grammar without chat UI decoration.
             response=http("/completion",{
                 "prompt":tokens,"n_predict":settings["max_tokens"],"temperature":settings["temperature"],
                 "top_p":0.9,"seed":settings["seed"],"json_schema":request["schema"],
-                "cache_prompt":False,"stream":False,"return_tokens":False
+                "cache_prompt":False,"stream":False,"return_tokens":False,**sampling
             },timeout=600)
             if response.get("truncated"):
                 raise RuntimeError("llama.cpp truncated context; refusing this turn")

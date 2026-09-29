@@ -1,0 +1,15 @@
+{
+  "profile": "12b",
+  "decoder_tokenizer_ms": 1386.142999996082,
+  "schema_compile_ms": 3.0945829930715263,
+  "structured_decoder": "llguidance/1.8.0",
+  "schema_prepare_ms": 1389.842459000647,
+  "decoder_mask_ms": 11.999789057881571,
+  "decoder_mask_calls": 353,
+  "metal_replay_ms": 539.513290998002,
+  "valid_tokens": 352,
+  "all_teacher_forced_tokens_allowed": true,
+  "only_eos_allowed_after_scene": true,
+  "mlx_peak_bytes": 3966364,
+  "peak_rss_bytes": 1303986176
+}

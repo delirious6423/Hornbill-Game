@@ -1,0 +1,24 @@
+[transformers] PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+test_encoder_rejects_unknown_layers_and_output_head (test_model_replacements.ModelReplacementTests.test_encoder_rejects_unknown_layers_and_output_head) ... ok
+test_image_validation_preserves_existing_output (test_model_replacements.ModelReplacementTests.test_image_validation_preserves_existing_output) ... ok
+test_offloaded_models_are_refused_without_opening_them (test_model_replacements.ModelReplacementTests.test_offloaded_models_are_refused_without_opening_them) ... ok
+test_q8_repacking_preserves_signed_extremes_and_scales (test_model_replacements.ModelReplacementTests.test_q8_repacking_preserves_signed_extremes_and_scales) ... ok
+test_q8_repacking_rejects_invalid_scale (test_model_replacements.ModelReplacementTests.test_q8_repacking_rejects_invalid_scale) ... ok
+test_story_weight_hash_detects_same_size_corruption (test_model_replacements.ModelReplacementTests.test_story_weight_hash_detects_same_size_corruption) ... ok
+test_bad_request_returns_one_machine_readable_error (test_protocol.WorkerProtocolTests.test_bad_request_returns_one_machine_readable_error) ... ok
+test_gguf_checks_offloaded_libraries_before_starting_the_runtime (test_protocol.WorkerProtocolTests.test_gguf_checks_offloaded_libraries_before_starting_the_runtime) ... ok
+test_image_worker_bounds_input_before_loading_weights (test_protocol.WorkerProtocolTests.test_image_worker_bounds_input_before_loading_weights) ... ok
+test_image_worker_rejects_bad_protocol_without_importing_metal (test_protocol.WorkerProtocolTests.test_image_worker_rejects_bad_protocol_without_importing_metal) ... ok
+test_local_model_is_required_for_gguf (test_protocol.WorkerProtocolTests.test_local_model_is_required_for_gguf) ... ok
+test_oversized_request_is_refused (test_protocol.WorkerProtocolTests.test_oversized_request_is_refused) ... ok
+test_worker_validates_envelope_without_importing_mlx (test_protocol.WorkerProtocolTests.test_worker_validates_envelope_without_importing_mlx) ... ok
+test_decoder_closes_memory_array_before_runaway_repetition (test_schema_contract.DecoderContractTests.test_decoder_closes_memory_array_before_runaway_repetition) ... ok
+test_decoder_refuses_invalid_sample_and_unknown_constraints (test_schema_contract.DecoderContractTests.test_decoder_refuses_invalid_sample_and_unknown_constraints) ... ok
+test_inventory_grammar_rejects_zero_and_out_of_range_deltas (test_schema_contract.DecoderContractTests.test_inventory_grammar_rejects_zero_and_out_of_range_deltas) ... ok
+test_native_decoder_preserves_newlines_unicode_and_independent_turns (test_schema_contract.DecoderContractTests.test_native_decoder_preserves_newlines_unicode_and_independent_turns) ... ok
+test_proper_names_remain_prose_while_memory_tags_are_ids (test_schema_contract.DecoderContractTests.test_proper_names_remain_prose_while_memory_tags_are_ids) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 2.233s
+
+OK

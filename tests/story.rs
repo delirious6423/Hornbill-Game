@@ -429,3 +429,100 @@ fn retrieval_uses_structured_events_without_copying_old_narrative_style() {
         output.narration
     );
 }
+
+#[test]
+fn related_reads_keep_one_snapshot_across_a_concurrent_commit() {
+    let dir = TempDir::new().unwrap();
+    let mut writer = engine(&dir);
+    let reader = Database::open(&dir.path().join("save.sqlite3")).unwrap();
+    let before = writer.database.load("main").unwrap();
+    let output = valid();
+    let after = before.apply(&output).unwrap();
+    let request = hornbill::prompt_builder::build(&before, "Listen", &[], &[], settings(), None);
+    let attempt = writer
+        .database
+        .start_attempt("main", &before, "Listen", 0, &request)
+        .unwrap();
+    reader
+        .read_snapshot(|db| {
+            assert_eq!(db.load("main")?.turn, 0);
+            // The writer commits between the two reader queries, without a sleep or
+            // a writer lock in the UI/export path. WAL keeps the old reader stable.
+            writer.database.commit_turn(
+                "main",
+                &before,
+                &after,
+                "Listen",
+                &output,
+                attempt,
+                "raw",
+                &json!({}),
+            )?;
+            assert!(db.latest_turn("main")?.is_none());
+            assert_eq!(db.load("main")?.turn, 0);
+            Ok(())
+        })
+        .unwrap();
+    let export = reader.export("main").unwrap();
+    assert_eq!(export["state"]["turn"], 1);
+    assert_eq!(export["turns"][0]["state_after"], export["state"]);
+    assert_eq!(export["attempts"][0]["status"], "accepted");
+    // A failed read must release its transaction for the next request.
+    assert!(reader.read_snapshot(|db| db.load("missing")).is_err());
+    assert_eq!(reader.export("main").unwrap()["state"]["turn"], 1);
+}
+
+#[tokio::test]
+async fn older_relevant_memory_survives_many_turns_and_reopening() {
+    let dir = TempDir::new().unwrap();
+    let mut engine = engine(&dir);
+    for turn in 1..=48 {
+        let mut output = valid();
+        output.narration = format!("AUDIT_ONLY_NARRATION_{turn}");
+        output.memory_updates[0].text = if turn == 1 {
+            "The copper latch opens with Mira's brass key.".into()
+        } else {
+            format!("Unrelated cloud observation number {turn}.")
+        };
+        output.memory_updates[0].tags = vec![if turn == 1 {
+            "copper_latch".into()
+        } else {
+            "clouds".into()
+        }];
+        output.memory_updates[0].importance = if turn == 1 { 0.1 } else { 0.9 };
+        output.state_changes.summary = (turn % 4 == 0).then(|| {
+            format!("Through turn {turn}, Mira's brass key still opens the copper latch.")
+        });
+        let mut queue = Queue {
+            outputs: vec![serde_json::to_string(&output).unwrap()],
+            requests: vec![],
+        };
+        engine
+            .advance("main", "Observe the clouds", &mut queue, settings())
+            .await
+            .unwrap();
+        let view: Value = serde_json::from_str(&queue.requests[0].messages[1].content).unwrap();
+        assert!(view["recent_scenes"].as_array().unwrap().len() <= 2);
+        assert!(view["relevant_memories"].as_array().unwrap().len() <= 6);
+        assert!(
+            !queue.requests[0].messages[1]
+                .content
+                .contains("AUDIT_ONLY_NARRATION")
+        );
+    }
+    drop(engine);
+    let db = Database::open(&dir.path().join("save.sqlite3")).unwrap();
+    let state = db.load("main").unwrap();
+    let terms = hornbill::prompt_builder::retrieval_terms(&state, "Inspect the copper latch");
+    let memories = db.retrieve_memories("main", &terms).unwrap();
+    assert!(
+        memories
+            .iter()
+            .any(|m| m.turn == 1 && m.text.contains("Mira's brass key"))
+    );
+    assert!(state.summary.contains("Through turn 48"));
+    assert_eq!(db.recent_scenes("main").unwrap()[0]["turn"], 47);
+    let export = db.export("main").unwrap();
+    assert_eq!(export["turns"].as_array().unwrap().len(), 48);
+    assert_eq!(export["attempts"].as_array().unwrap().len(), 48);
+}

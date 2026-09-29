@@ -28,12 +28,12 @@ The starting world is Hornbill Observatory with Alex and Mira. A different premi
 
 | Current workload | Measured time | Peak MLX | Result |
 |---|---:|---:|---|
-| Gemma 12B Q6, four turns | 188.47 s/saved turn | 9.84 GiB | 4/4 first attempts; summary refreshed |
-| Gemma E4B 8-bit, four turns | 85.58 s/saved turn | 7.85 GiB | 3/4 first attempts; summary refreshed |
+| Gemma 12B Q6, four turns | 112.22 s/saved turn | 9.84 GiB | 4/4 first attempts; summary refreshed |
+| Gemma E4B 8-bit, four turns | 46.47 s/saved turn | 7.85 GiB | 3/4 first attempts; summary refreshed |
 | Z-Image text-to-image, 512×768, 9 steps | 126.39 s | 5.57 GiB | PNG and visual inspection passed |
 | Z-Image GUI with reference, 512×768 | 55.13 s | 5.57 GiB | Saved and displayed at existing turn 4 |
 
-12B is the preserved default. E4B is faster in this small sample but needed one repair and had weaker story continuity. Both profiles increased system swap; neither is qualified as swap-free on 16 GB. [Validation](docs/VALIDATION.md) records timing boundaries, quality examples and remaining limits. Original Gemma 4-bit/Qwen measurements are retained in [historical validation](docs/checkpoints/0005-validation.md).
+12B is the preserved default. E4B is faster in this small sample but needed one repair and had weaker story continuity. 12B still increased swap and briefly reached warning memory pressure; E4B’s measured swap usage declined. Neither small sample establishes swap-free operation on 16 GB. [Validation](docs/VALIDATION.md) records timing boundaries, quality examples and remaining limits. Original Gemma 4-bit/Qwen measurements are retained in [historical validation](docs/checkpoints/0005-validation.md).
 
 ## Install a fresh copy
 
@@ -62,7 +62,7 @@ cd Hornbill-Game
 
 A fresh clone or source ZIP omits `.runtime-path`, so setup uses a `.local` runtime beside the source. For a ZIP, extract it and enter its `hornbill` directory instead of cloning. `HORNBILL_RUNTIME=/absolute/runtime/path ./scripts/setup.sh` selects another location. In the existing development workspace, retain `.runtime-path` to reuse the installed tools and weights in `work/runtime`. Setup never changes your shell profile or requires a permanent model server.
 
-The tools are pinned: Rust 1.98.1; complete Cargo dependencies in `Cargo.lock`; MLX 0.32.3, `mlx-lm` source `3051e26bc72b8ab426af17d14c5599447eb306a5`, Outlines 1.3.3; MFLUX source `2924d0c7cd7104a1ab2f18f40d3bedcf47ba8b9c` in a separate image environment. Exact model revisions, hashes, runtime research and upstream links are in [RUNTIMES.md](docs/RUNTIMES.md), worker manifests and dependency locks. Run Metal commands from an ordinary Terminal; a restricted execution environment may hide the GPU.
+The tools are pinned: Rust 1.98.1; complete Cargo dependencies in `Cargo.lock`; MLX 0.32.3, `mlx-lm` source `3051e26bc72b8ab426af17d14c5599447eb306a5`, llguidance 1.8.0; MFLUX source `2924d0c7cd7104a1ab2f18f40d3bedcf47ba8b9c` in a separate image environment. Exact model revisions, hashes, runtime research and upstream links are in [RUNTIMES.md](docs/RUNTIMES.md), worker manifests and dependency locks. Run Metal commands from an ordinary Terminal; a restricted execution environment may hide the GPU.
 
 ## CLI and diagnostics
 

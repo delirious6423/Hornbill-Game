@@ -1,0 +1,16 @@
+{
+  "profile": "12b",
+  "llguidance": "1.8.0",
+  "prepare_ms": 1287.6043749929522,
+  "tokenizer_ms": 1285.2162499984843,
+  "contract_replay_ms": 113.6448340039351,
+  "checks": [
+    "six_memories_rejected",
+    "uppercase_tag_rejected",
+    "zero_out_of_bounds_and_fractional_inventory_rejected",
+    "inventory_boundaries_accepted"
+  ],
+  "full_scene_accepted": true,
+  "warnings": [],
+  "peak_rss_bytes": 1293533184
+}

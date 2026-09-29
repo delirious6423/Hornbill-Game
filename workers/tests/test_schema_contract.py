@@ -2,13 +2,17 @@
 import copy
 import json
 from pathlib import Path
-import re
+import importlib.util
 import subprocess
 import unittest
 
-from outlines_core.json_schema import build_regex_from_schema
+from tokenizers import Tokenizer, models, pre_tokenizers, decoders
+from transformers import PreTrainedTokenizerFast
 
 ROOT = Path(__file__).resolve().parents[2]
+SPEC = importlib.util.spec_from_file_location("structured", ROOT / "workers/gemma/structured.py")
+structured = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(structured)
 
 
 class DecoderContractTests(unittest.TestCase):
@@ -19,7 +23,12 @@ class DecoderContractTests(unittest.TestCase):
         result = subprocess.run(command, cwd=ROOT, text=True, capture_output=True,
                                 check=True, timeout=90)
         cls.schema = json.loads(result.stdout)
-        cls.pattern = re.compile(build_regex_from_schema(json.dumps(cls.schema)))
+        vocab = {"<eos>": 0, "<unk>": 1}
+        vocab.update({char: index + 2 for index, char in enumerate(sorted(pre_tokenizers.ByteLevel.alphabet()))})
+        backend = Tokenizer(models.BPE(vocab=vocab, merges=[], unk_token="<unk>"))
+        backend.pre_tokenizer = pre_tokenizers.ByteLevel(add_prefix_space=False, use_regex=False)
+        backend.decoder = decoders.ByteLevel()
+        cls.tokenizer = PreTrainedTokenizerFast(tokenizer_object=backend, eos_token="<eos>", unk_token="<unk>")
         cls.example = json.loads((ROOT / "prompts/demo_turn.json").read_text())
 
     def ordered(self, value, schema):
@@ -34,7 +43,16 @@ class DecoderContractTests(unittest.TestCase):
 
     def accepted(self, value):
         encoded = json.dumps(self.ordered(value, self.schema), ensure_ascii=False)
-        return self.pattern.fullmatch(encoded) is not None
+        decoder = structured.StructuredDecoder(self.schema, self.tokenizer, {})
+        tokens = self.tokenizer.encode(encoded, add_special_tokens=False)
+        previous = None
+        for token in tokens:
+            mask = decoder.next_mask(previous)
+            if not (int(mask[0, token // 32]) >> (token % 32)) & 1:
+                return False
+            previous = token
+        decoder.next_mask(previous)
+        return decoder.matcher.is_accepting() and not decoder.matcher.is_error()
 
     def test_decoder_closes_memory_array_before_runaway_repetition(self):
         value = copy.deepcopy(self.example)
@@ -61,6 +79,21 @@ class DecoderContractTests(unittest.TestCase):
         for delta in (-101, 0, 101, 1.5):
             value["state_changes"]["inventory"] = [{"item": "flashlight", "delta": delta}]
             self.assertFalse(self.accepted(value), f"invalid delta {delta}")
+
+    def test_decoder_refuses_invalid_sample_and_unknown_constraints(self):
+        decoder = structured.StructuredDecoder(self.schema, self.tokenizer, {})
+        invalid = self.tokenizer.encode("X", add_special_tokens=False)[0]
+        with self.assertRaisesRegex(ValueError, "rejected sampled token"):
+            decoder.next_mask(invalid)
+        schema = {"type": "string", "format": "not-a-supported-format"}
+        with self.assertRaises(ValueError):
+            structured.StructuredDecoder(schema, self.tokenizer, {})
+
+    def test_native_decoder_preserves_newlines_unicode_and_independent_turns(self):
+        value = copy.deepcopy(self.example)
+        value["narration"] = "Mira says: ‘A new clue!’\n雨 falls outside."
+        self.assertTrue(self.accepted(value))
+        self.assertTrue(self.accepted(self.example), "a fresh turn must start with an independent matcher")
 
 
 if __name__ == "__main__":

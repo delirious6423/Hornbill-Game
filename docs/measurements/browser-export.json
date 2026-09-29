@@ -1,0 +1,10 @@
+{
+  "verified_at": "2026-09-29T17:32:34.741145+00:00",
+  "download": "/Users/yo15m4/Downloads/story_1790681920698 (1).json",
+  "bytes": 463058,
+  "sha256": "c13f69552da8a7562b2de47368e26d06f198f2bb46f3523e04daf7e49c864859",
+  "source": "visible Story journal export button in in-app browser tab 2",
+  "identical_to_checkpoint_export": true,
+  "turn": 4,
+  "note": "Download event observer timed out, but the new browser-created file was present and verified byte content."
+}

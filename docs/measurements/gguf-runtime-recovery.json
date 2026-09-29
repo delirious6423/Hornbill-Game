@@ -1,0 +1,44 @@
+{
+  "verified_at": "2026-09-29T18:13:16.533424+00:00",
+  "archive_sha256": "ebf1ccab751a0a972dfb06225bc716174dffb0cf780206c03802e620b21f96e0",
+  "archive": "existing pinned llama.cpp b11247 macOS arm64 release",
+  "restored": [
+    {
+      "file": "llama-b11247/llama-batched-bench",
+      "bytes": 33488,
+      "sha256": "a126dbaf44036bdffc276c059546f4c3086e6c401de0a3e0b7a39a9d28bd7a7a",
+      "original_preserved": "work/icloud-recovery/llama-b11247-offloaded/llama-b11247/llama-batched-bench"
+    },
+    {
+      "file": "llama-b11247/LICENSE",
+      "bytes": 1078,
+      "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d",
+      "original_preserved": "work/icloud-recovery/llama-b11247-offloaded/llama-b11247/LICENSE"
+    },
+    {
+      "file": "llama-b11247/libggml-blas.0.25.3.dylib",
+      "bytes": 58776,
+      "sha256": "66521923af97fcd650683917711e2791ff922fa8fcd9868aed444f955adc4878",
+      "original_preserved": "work/icloud-recovery/llama-b11247-offloaded/llama-b11247/libggml-blas.0.25.3.dylib"
+    },
+    {
+      "file": "llama-b11247/ggml-metal-tuning",
+      "bytes": 87696,
+      "sha256": "845212cd7c3c6889a3f487ea54a86f38c0e63fab688853e2dbe3cf1e6bfa5e78",
+      "original_preserved": "work/icloud-recovery/llama-b11247-offloaded/llama-b11247/ggml-metal-tuning"
+    },
+    {
+      "file": "llama-b11247/libllama-cli-impl.dylib",
+      "bytes": 237544,
+      "sha256": "bd2513f49b908f6b2e674a59bbaa81a890a08c8d95b9cce1f87751b3a3dcc216",
+      "original_preserved": "work/icloud-recovery/llama-b11247-offloaded/llama-b11247/libllama-cli-impl.dylib"
+    },
+    {
+      "file": "llama-b11247/llama-quantize",
+      "bytes": 33472,
+      "sha256": "7ef6927b8299b422bff1cab5ee29ccd8bc960f54a4f82deff7ec04729bccc882",
+      "original_preserved": "work/icloud-recovery/llama-b11247-offloaded/llama-b11247/llama-quantize"
+    }
+  ],
+  "models_unchanged": true
+}

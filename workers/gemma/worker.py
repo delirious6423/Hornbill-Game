@@ -56,8 +56,7 @@ def generate(model_path, request, meta):
     from mlx_lm import stream_generate
     from mlx_lm.utils import load_config, load_model, load_tokenizer
     from mlx_lm.sample_utils import make_sampler
-    import outlines
-    from outlines.backends import get_json_schema_logits_processor
+    from structured import StructuredDecoder
 
     settings = validate_request(request)
     if not mx.metal.is_available():
@@ -96,19 +95,7 @@ def generate(model_path, request, meta):
     properties = schema["properties"]
     order = ("narration", "dialogue", "scene", "state_changes", "memory_updates", "choices")
     schema["properties"] = {key: properties[key] for key in order}
-    grammar_start = time.perf_counter()
-    processor = get_json_schema_logits_processor(
-        "outlines_core", outlines.from_mlxlm(None, tokenizer), json.dumps(schema),
-        whitespace_pattern=r"[ ]?",
-    )
-    meta["schema_compile_ms"] = (time.perf_counter() - grammar_start)*1000
-    meta["structured_decoder"] = f"outlines/{importlib.metadata.version('outlines')}"
-
-    def constrain(token_ids, logits):
-        # The pinned mlx-lm evaluates decoding lazily on its generation stream.
-        # Stateful grammar guides must see the actual latest sampled token.
-        mx.eval(token_ids)
-        return processor(token_ids, logits)
+    processor = StructuredDecoder(schema, tokenizer, meta)
 
     load_start = time.perf_counter()
     model, _ = load_model(model_path, lazy=False, strict=True, trust_remote_code=False)
@@ -120,7 +107,7 @@ def generate(model_path, request, meta):
     last = None
     for part in stream_generate(model, tokenizer, tokens, max_tokens=settings["max_tokens"],
                                 sampler=make_sampler(temp=settings["temperature"],top_p=0.9),
-                                logits_processors=[constrain], prefill_step_size=256):
+                                logits_processors=[processor], prefill_step_size=256):
         if last is None:
             meta["ttft_ms"] = (time.perf_counter() - generation_start)*1000
         pieces.append(part.text)

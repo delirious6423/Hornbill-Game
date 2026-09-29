@@ -237,7 +237,20 @@ impl Database {
         Ok(())
     }
 
+    /// Keep related reads on one SQLite snapshot while other connections write.
+    /// The callback must only read and must not start another transaction.
+    pub fn read_snapshot<T>(&self, read: impl FnOnce(&Self) -> Result<T>) -> Result<T> {
+        let transaction = self.connection.unchecked_transaction()?;
+        let result = read(self)?;
+        transaction.commit()?;
+        Ok(result)
+    }
+
     pub fn export(&self, id: &str) -> Result<Value> {
+        self.read_snapshot(|db| db.export_snapshot(id))
+    }
+
+    fn export_snapshot(&self, id: &str) -> Result<Value> {
         let state = self.load(id)?;
         let mut query = self.connection.prepare(
             "SELECT id,base_turn,attempt,action,request_json,raw_response,metadata_json,state_before,status,error,started_at,finished_at FROM generation_attempts WHERE save_id=?1 ORDER BY id"

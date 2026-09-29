@@ -1,0 +1,22 @@
+{
+  "verified_at": "2026-09-29T18:15:00.624659+00:00",
+  "clean_source": "/Users/yo15m4/Documents/Codex/2026-09-29/project-hornbill/work/clean-source/hornbill",
+  "runtime": "/Users/yo15m4/Documents/Codex/2026-09-29/project-hornbill/work/clean-source-runtime",
+  "dependencies": "35 exact pinned packages installed in work/clean-mvp-fresh-venv using a fresh package cache; Outlines absent",
+  "checks": {
+    "rust_tests": 32,
+    "python_tests": 18,
+    "formatting": true,
+    "clippy": true,
+    "release_build": true,
+    "new_save_demo_turn_reopened_export": true,
+    "production_files_match_workspace": true,
+    "metal_decoder_replay": true,
+    "metal_replay_tokens": 352,
+    "gguf_placeholder_startup_regression": true,
+    "final_gguf_sampling_adapter_python_regressions": 18
+  },
+  "reused": "Installed Rust 1.98.1/Python 3.12.14 tools; models are a link to existing weights, with no model download or model inference in this rehearsal.",
+  "limits": "Source/dependency rehearsal on the same Mac, not a pristine macOS install or other hardware qualification.",
+  "harness_note": "A direct Python-only invocation initially omitted HORNBILL_RUNTIME and could not find cargo for the schema probe; rerunning with the documented runtime override passed all 18 tests."
+}

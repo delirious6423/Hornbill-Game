@@ -1,0 +1,105 @@
+{
+  "12b": {
+    "model": "shoemoney/Gemma-4-12B-Abliterated-MLX-q6",
+    "revision": "edd4c19a3edc7d4637c729fcb776e190ba0b7b25",
+    "save_id": "bench_12b_1790703709907649000",
+    "turns": 4,
+    "attempts": 4,
+    "first_attempts_accepted": 4,
+    "mean_seconds_per_saved_turn_including_retries": 112.220731677,
+    "mean_accepted_worker_seconds": 112.220731677,
+    "mean_decode_tokens_per_second": 9.000448956222003,
+    "max_mlx_gib": 9.836266255006194,
+    "max_rss_gib": 5.60430908203125,
+    "prompt_tokens": [
+      3568,
+      3814,
+      4084,
+      4214
+    ],
+    "generation_tokens": [
+      560,
+      574,
+      622,
+      554
+    ],
+    "decoder_prepare_ms": [
+      1254.757292001159,
+      1326.9830420031212,
+      1325.8086249988992,
+      1324.961042002542
+    ],
+    "pure_grammar_compile_ms": [
+      1.939665999088902,
+      4.141625002375804,
+      2.062332998320926,
+      2.0188749986118637
+    ],
+    "accepted_system_swap_changes_gib": [
+      1.470703125,
+      0.37090820353478193,
+      -0.07122070342302322,
+      -0.031005859375
+    ],
+    "all_attempt_system_swap_changes_gib": [
+      1.470703125,
+      0.37090820353478193,
+      -0.07122070342302322,
+      -0.031005859375
+    ],
+    "final_summary": "Alex and Mira have arrived at the Hornbill Observatory following a mysterious radio transmission from Dr. Aris. They have discovered that the maintenance path offers a quieter route to the service entrance and that the timing of the call suggests a significant shift in Aris's personal world.",
+    "limits": "Four cold sequential turns per model, same model pins/settings/actions as checkpoint 0008; output lengths differ. End-to-end latency is not an identical-token microbenchmark. Whole-system swap includes other apps."
+  },
+  "e4b": {
+    "model": "mlx-community/gemma-4-E4B-it-OBLITERATED-mlx-8Bit",
+    "revision": "db71b2644248b4f9e7e31ede5e6f631b870d8af5",
+    "save_id": "bench_e4b_1790704162553960000",
+    "turns": 4,
+    "attempts": 5,
+    "first_attempts_accepted": 3,
+    "mean_seconds_per_saved_turn_including_retries": 46.467764042,
+    "mean_accepted_worker_seconds": 38.23576806275,
+    "mean_decode_tokens_per_second": 16.642869990098987,
+    "max_mlx_gib": 7.849939182400703,
+    "max_rss_gib": 5.520538330078125,
+    "prompt_tokens": [
+      3610,
+      3752,
+      3944,
+      3972
+    ],
+    "generation_tokens": [
+      318,
+      343,
+      356,
+      406
+    ],
+    "decoder_prepare_ms": [
+      1408.7198749984964,
+      1312.421832997643,
+      1327.630916995986,
+      1327.632917003939
+    ],
+    "pure_grammar_compile_ms": [
+      2.0346660021459684,
+      2.074541996989865,
+      2.1016250029788353,
+      2.031832998909522
+    ],
+    "accepted_system_swap_changes_gib": [
+      -0.0390625,
+      -0.1796875,
+      -0.015625,
+      -0.03125
+    ],
+    "all_attempt_system_swap_changes_gib": [
+      -0.0234375,
+      -0.0390625,
+      -0.1796875,
+      -0.015625,
+      -0.03125
+    ],
+    "final_summary": "Alex and Mira have reached the locked Hornbill Observatory after receiving a mysterious radio message. There is a hidden side trail on the east side of the wall, and a rusted radio mast is on the roof. They also know that the local legend is about someone going missing here.",
+    "limits": "Four cold sequential turns per model, same model pins/settings/actions as checkpoint 0008; output lengths differ. End-to-end latency is not an identical-token microbenchmark. Whole-system swap includes other apps."
+  }
+}

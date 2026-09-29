@@ -1,0 +1,39 @@
+{
+  "turns": 8,
+  "first_attempts_accepted": 8,
+  "continuous_state_chain": true,
+  "summaries_updated_at": [
+    4,
+    8
+  ],
+  "prompt_tokens": [
+    3568,
+    3814,
+    4084,
+    4214,
+    4516,
+    4507,
+    4506,
+    4552
+  ],
+  "max_context_tokens": 6144,
+  "reserved_output_tokens": 1536,
+  "canonical_identity_preserved": true,
+  "locations": [
+    "observatory",
+    "observatory",
+    "maintenance_path",
+    "maintenance_path",
+    "maintenance_path",
+    "maintenance_path",
+    "maintenance_path",
+    "maintenance_path"
+  ],
+  "quality_observations": [
+    "Turn 5 starts at the existing service entrance. Turn 6 discovers that the door is ajar.",
+    "Turn 6 repeats Mira dialogue from turn 5 verbatim.",
+    "Turn 8 recalls the maintenance path but invents a crowd as the reason for taking it, treats the call sign as proof the sender is Aris, and redirects toward the front entrance instead of using the ajar service door.",
+    "The revised continuity prompt did not eliminate prose repetition or unsupported assertions. Rust validates structural state, not narrative truth."
+  ],
+  "limits": "Eight real turns on the requested model, not a long-session quality guarantee. Turns 5\u20138 use revised continuity instructions and ran alongside a clean source build, so their timings are not a controlled performance comparison."
+}
