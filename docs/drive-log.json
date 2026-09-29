@@ -4,8 +4,8 @@
   "worklog_document_id": "1lh94PinjOJo49JXDGrPLpY80sHcHgblqT3oSGkq0amE",
   "worklog_url": "https://docs.google.com/document/d/1lh94PinjOJo49JXDGrPLpY80sHcHgblqT3oSGkq0amE",
   "tab_id": "t.0",
-  "checkpoint_id": "0005",
-  "checkpoint_recorded_at": "2026-09-29T14:25:09.504775+00:00",
+  "checkpoint_id": "0006",
+  "checkpoint_recorded_at": "2026-09-29T15:46:09.016563+00:00",
   "timezone": "Asia/Kuala_Lumpur",
   "context_threshold_percent": 85,
   "trigger_mode": "agent_instruction_best_effort",
@@ -14,7 +14,7 @@
   "local_handoff": "docs/HANDOFF.md",
   "local_worklog": "docs/WORKLOG.md",
   "sync_pending": false,
-  "last_verified_sync_at": "2026-09-29T14:26:33.853307+00:00",
+  "last_verified_sync_at": "2026-09-29T15:47:35.702333+00:00",
   "source_archive_uploaded": true,
   "source_archive_approval": "explicit_user_approval",
   "source_archive_local_path": "/Users/yo15m4/Documents/Codex/2026-09-29/project-hornbill/outputs/Project-Hornbill.zip",
@@ -25,5 +25,6 @@
   "github_branch": "main",
   "github_source_commit": "1fe3c364bd4753a3f77470aa583056287fa96c5c",
   "github_receipt": "/Users/yo15m4/Documents/Codex/2026-09-29/project-hornbill/outputs/Project-Hornbill-GitHub-Receipt.json",
-  "source_archive_verification_authority": "External receipt; see source_archive_receipt for the verified archive checkpoint and checksum."
+  "source_archive_verification_authority": "External receipt; see source_archive_receipt for the verified archive checkpoint and checksum.",
+  "checkpoint_status": "in_progress_model_replacement"
 }

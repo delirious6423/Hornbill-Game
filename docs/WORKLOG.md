@@ -52,3 +52,11 @@
 - The user then authorized populating private GitHub repository delirious6423/Hornbill-Game. Published commit `1fe3c364bd4753a3f77470aa583056287fa96c5c` on main while preserving the initial commit. All 87 files matched local Git blob hashes and executable modes. Added a repository preview and portable review/setup guidance; excluded runtime, weights, live data and credentials. Final documentation synchronization and Drive backup receipts follow this source publication.
 - The overall goal is confirmed paused at the user’s request. GitHub delivery is authorized checkpoint work, not resumption of feature development.
 - Drive checkpoint 0005 readback verified the complete text, seven headings, native date chip, GitHub link and unchanged prior history. Worklog sync completed. The final source archive and GitHub commit are verified separately in the external delivery receipts, avoiding self-referential checksum changes.
+
+## 2026-09-29 — Checkpoint 0006: requested model replacements in progress
+
+- Trigger: compaction recovery; exact 85% telemetry remains unavailable. Goal tool confirms active. Latest user selections supersede checkpoint 0005’s pause and previous weights.
+- Selected image encoder: BennyDaBall Z-Image-AbliteratedV1.Q8_0.gguf, paired with pinned Z-Image-Turbo Q4 renderer. Both downloaded; conversion/inference and app integration are not yet verified. New worker/converter files are local work in progress.
+- Selected story models: shoemoney/Gemma-4-12B-Abliterated-MLX-q6 and mlx-community/gemma-4-E4B-it-OBLITERATED-mlx-8Bit. The lemuralabs 8-bit 12B candidate is explicitly superseded. Metadata/compatibility and storage checks precede installation.
+- Existing saves and old runtime weights remain intact; old app PID 24985 stays available on port 56643 until the replacement is verified. Previous performance evidence is historical, not a qualification of new models.
+- See HANDOFF.md for exact pins, files, processes, failed approaches, publication state and ordered next actions. This is a docs-only continuity checkpoint; the verified source ZIP is still checkpoint 0005.

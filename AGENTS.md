@@ -19,7 +19,7 @@ The user requested a Google Drive worklog in a dedicated project folder whenever
 
 ## Implementation guardrails
 
-The story/image/UI loop and bounded-memory generation milestone are verified; performance and finalization remain in progress. The user explicitly requested a pause for review after checkpoint 0005. Do not start another milestone until they resume. SQLite owns canonical truth; validate before atomic commits. StoryBackend isolates model details. Retain GGUF as the explicitly approved compatibility fallback. Do not advance to images or Tauri until the local story loop and quality/memory gate pass.
+The story/image/UI loop and bounded-memory generation milestone are verified; performance and finalization remain in progress. Checkpoint 0006 records the user’s later image and story model replacement requests and the goal tool’s active status; proceed with that authorized work. The earlier checkpoint 0005 pause is historical. SQLite owns canonical truth; validate before atomic commits. StoryBackend isolates model details. Retain GGUF as the explicitly approved compatibility fallback. Do not advance to images or Tauri until the local story loop and quality/memory gate pass.
 
 Use the existing project-local runtime via `scripts/env.sh` and provided wrappers. Read `.runtime-path` before setup. No unnecessary downloads or global installations. CPU and scripted-demo results do not establish Metal performance.
 
@@ -27,4 +27,4 @@ Checkpoint 0005 records real GUI/reference checks, a repaired runaway memory lis
 
 ## GitHub snapshot
 
-The user authorized populating https://github.com/delirious6423/Hornbill-Game (private, main) with current progress. Preserve its existing initial commit. The local source is not a Git checkout and local Git credentials were unavailable; use the connected GitHub API or later authenticated Git setup. Upload source, docs and curated evidence only; exclude model/runtime folders, live saves and session credentials. See the handoff and external GitHub receipt for the published snapshot. This publishing request does not resume feature development.
+The user authorized populating https://github.com/delirious6423/Hornbill-Game (private, main) with current progress. Preserve its existing initial commit. The local source is not a Git checkout and local Git credentials were unavailable; use the connected GitHub API or later authenticated Git setup. Upload source, docs and curated evidence only; exclude model/runtime folders, live saves and session credentials. See the handoff and external GitHub receipt for the published snapshot. The initial publishing request alone did not resume feature development; later explicit model replacement requests authorize the current work.
