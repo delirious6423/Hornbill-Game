@@ -1,4 +1,4 @@
-"""Pinned, optional llama.cpp + Gemma 4 Q4_K_M installation for this Mac."""
+"""Pinned, optional GGUF fallback install: llama.cpp plus Gemma 4 12B (Q4_K_M)."""
 import argparse
 import hashlib
 import json
@@ -43,7 +43,7 @@ def main():
             tar.extractall(target,filter="data")
         binaries=list(target.rglob("llama-server"))
         if not binaries:
-            raise SystemExit("Release has no llama-server binary")
+            raise SystemExit("llama.cpp release has no llama-server binary")
         (runtime/"llama-binary").write_text(str(binaries[0])+"\n")
         print(binaries[0])
     if args.command in ("setup","model"):
@@ -51,11 +51,11 @@ def main():
         model_dir.mkdir(parents=True,exist_ok=True)
         path=model_dir/MODEL["filename"]
         if not path.exists() and shutil.disk_usage(model_dir).free<MODEL["size"]+1024**3:
-            raise SystemExit("Need at least 7.7 GiB free for the optional GGUF download")
-        print("Downloading pinned Gemma 4 12B Q4_K_M",flush=True)
+            raise SystemExit("Need at least 7.7 GiB free for the GGUF fallback download")
+        print("Downloading Gemma 4 12B (Q4_K_M)",flush=True)
         path=Path(hf_hub_download(MODEL["repo"],MODEL["filename"],revision=MODEL["revision"],local_dir=model_dir))
         if path.stat().st_size!=MODEL["size"] or sha256(path)!=MODEL["sha256"]:
-            raise SystemExit("GGUF checksum/size mismatch")
+            raise SystemExit("GGUF checksum or size mismatch")
         path.with_suffix(".hornbill.json").write_text(json.dumps(MODEL,indent=2)+"\n")
         print(path)
 

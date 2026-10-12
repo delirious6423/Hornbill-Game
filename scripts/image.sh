@@ -13,5 +13,5 @@ case "$command" in
   doctor)
     exec "$HORNBILL_RUNTIME/image-venv/bin/python" "$HORNBILL_ROOT/workers/z_image/worker.py" --doctor --model "$HORNBILL_RUNTIME/models/z-image-turbo-benny"
     ;;
-  *) echo 'Usage: ./scripts/image.sh setup|download|doctor' >&2; exit 2 ;;
+  *) echo 'Usage: ./scripts/image.sh [setup|download|doctor]' >&2; exit 2 ;;
 esac

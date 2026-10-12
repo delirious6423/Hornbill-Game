@@ -1,11 +1,10 @@
-"""One-shot GGUF adapter. A private loopback llama-server lives for one request.
+"""One-shot GGUF fallback worker. A private loopback llama-server lives for one request.
 
 Uses the GGUF's native tokenizer/template and llama.cpp JSON-schema decoding.
 Rust still speaks only stdin/stdout JSON and reaps the complete process group.
 """
 import argparse
 import json
-import os
 from pathlib import Path
 import resource
 import secrets
@@ -37,7 +36,7 @@ def generate(args, request, meta):
     # placeholders before the dynamic loader can block trying to hydrate them.
     for library in executable.parent.glob("*.dylib"):
         require_downloaded(library)
-    # No external endpoint and no proxy inheritance; this server serves one worker.
+    # Loopback only, and no proxy inheritance.
     with socket.socket() as reservation:
         reservation.bind(("127.0.0.1",0))
         port=reservation.getsockname()[1]
@@ -109,22 +108,21 @@ def generate(args, request, meta):
             tokens=http("/tokenize",{"content":formatted,"add_special":False,"parse_special":True})["tokens"]
             meta["prompt_tokens"]=len(tokens)
             if len(tokens)+settings["max_tokens"]>settings["context_tokens"]:
-                raise ValueError("Prompt + reserved output exceeds context budget; reduce context or output size")
+                raise ValueError(f"Context budget exceeded: {len(tokens)} prompt + {settings['max_tokens']} output > {settings['context_tokens']}. Reduce the world notes or output length")
             generation_start=time.perf_counter()
             # Penalize repeated prose sequences without relaxing JSON grammar.
             # Quote/newline breakers avoid penalizing the repeated schema keys.
             sampling={"dry_multiplier":0.8,"dry_base":1.75,"dry_allowed_length":3,
                       "dry_penalty_last_n":512,"dry_sequence_breakers":["\n",":","\"","*"]}
             meta["sampling"]=sampling
-            # /completion consumes the already-rendered native chat template and
-            # provides exact timings and raw JSON grammar without chat UI decoration.
+            # /completion takes the already-rendered chat template and returns exact timings.
             response=http("/completion",{
                 "prompt":tokens,"n_predict":settings["max_tokens"],"temperature":settings["temperature"],
                 "top_p":0.9,"seed":settings["seed"],"json_schema":request["schema"],
                 "cache_prompt":False,"stream":False,"return_tokens":False,**sampling
             },timeout=600)
             if response.get("truncated"):
-                raise RuntimeError("llama.cpp truncated context; refusing this turn")
+                raise RuntimeError("llama.cpp truncated the scene; try the turn again")
             timing=response.get("timings",{})
             meta.update({"generation_ms":(time.perf_counter()-generation_start)*1000,
                          "ttft_ms":None,"generation_tps":timing.get("predicted_per_second"),

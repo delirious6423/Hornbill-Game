@@ -1,5 +1,5 @@
 use crate::models::*;
-use anyhow::{Result, bail, ensure};
+use anyhow::{Context, Result, ensure};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -389,10 +389,7 @@ impl GameState {
                 identifier(tag)?;
             }
         }
-        next.turn = self
-            .turn
-            .checked_add(1)
-            .ok_or_else(|| anyhow::anyhow!("turn counter overflow"))?;
+        next.turn = self.turn.checked_add(1).context("turn counter overflow")?;
         next.world.location = output.scene.location.clone();
         next.world.time = output.scene.time.clone();
         next.current_scene = Some(output.scene.clone());
@@ -411,14 +408,12 @@ pub fn parse_turn(raw: &str) -> Result<TurnOutput> {
     {
         body.trim()
             .strip_suffix("```")
-            .ok_or_else(|| anyhow::anyhow!("unclosed JSON fence"))?
+            .context("unclosed JSON fence")?
             .trim()
     } else {
         raw
     };
-    if !json.starts_with('{') {
-        bail!("response must be one JSON object");
-    }
+    ensure!(json.starts_with('{'), "response must be one JSON object");
     let mut deserializer = serde_json::Deserializer::from_str(json);
     let output = serde_path_to_error::deserialize(&mut deserializer).map_err(|error| {
         anyhow::anyhow!("invalid output at {}: {}", error.path(), error.inner())

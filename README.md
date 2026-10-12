@@ -1,154 +1,116 @@
-# Project Hornbill
+# Hornbill
 
-A fully local illustrated story engine for an Apple Silicon Mac. Enter an action or choose a response, read the next scene, and see its illustration. Rust and SQLite keep your world and saves; Gemma and Z-Image run one at a time in separate processes. The interface is a private local webpage, with no cloud inference or Node/npm runtime.
+Hornbill is a local illustrated interactive-story app for Apple Silicon Macs. You type an action or pick a choice, read the next scene, and get an illustration of it. Rust and SQLite own the story state; the story model and image model run as separate workers, one at a time, with no cloud inference.
 
-![Hornbill showing The Observatory Signal at turn four](docs/assets/hornbill-app.jpg)
+![Hornbill showing a story at turn four](docs/assets/hornbill-app.jpg)
 
-**Current models:** Gemma 12B Q6 (`shoemoney/Gemma-4-12B-Abliterated-MLX-q6`), Gemma E4B 8-bit (`mlx-community/gemma-4-E4B-it-OBLITERATED-mlx-8Bit`), and Z-Image-Turbo with the exact BennyDaBall `Z-Image-AbliteratedV1.Q8_0.gguf` encoder. The image selection is a text encoder paired with a separate Z-Image renderer. Current qualification and limits are in [validation](docs/VALIDATION.md); [runtime notes](docs/RUNTIMES.md) record the exact pins and licenses. Read the [handoff](docs/HANDOFF.md) for the latest checkpoint.
+## Requirements
 
-## Open an installed copy
+- Apple Silicon Mac with Metal (tested on Apple Silicon only)
+- macOS command-line tools (`xcode-select --install`)
+- Internet during setup only; play is offline
+- About 45–50 GB of disk for all models, environments and build files
+- Keep the project and its runtime fully downloaded. In an iCloud-managed folder, use **Keep Downloaded** or install elsewhere.
 
-From the source directory in macOS Terminal, run:
-
-```sh
-./hornbill ui
-```
-
-The launch command opens your browser. Keep that Terminal window running; press Control-C there to stop the app. If Hornbill is already open, use its existing browser tab. The server binds only to `127.0.0.1`, chooses a free port, and creates a private launch link. Its local `data/ui-session.json` can recover the link; it contains a session key, so keep it private. `./hornbill ui --no-open` prints a launch link without opening a browser.
-
-Choose **New story**, then select a choice or type an action. Command-Enter or Control-Enter submits a typed action. Accepted turns save automatically. Select any saved story to resume it. **Cancel** stops the active model; a story already saved before illustration began remains saved.
-
-**Settings** chooses Gemma 12B (Q6, preferred), E4B (8-bit), or GGUF (compatibility), and whether to illustrate at visual moments, every turn, or only on request. **Illustrate now** creates another picture of the current scene. The default image is 512×768, nine steps, seed 42. The UI also offers 384×576 and 768×768; see validation for sizes actually measured.
-
-**Story journal** shows the summary, inventory and unfinished threads. Add a short story direction and world facts, separated by blank lines. Up to four relevant facts join each prompt. A picture can be attached to a canonical character or place. The current low-memory backend uses one picture as a composition reference; it does not lock a character's face. The journal also exports the story and full generation record as JSON.
-
-The starting world is Hornbill Observatory with Alex and Mira. A different premise changes the direction within that world. To create different starting characters and locations, edit a copy of `prompts/world.json` and use the CLI's `new --world` option.
-
-## Current measured behavior
-
-| Current workload | Measured time | Peak MLX | Result |
-|---|---:|---:|---|
-| Gemma 12B Q6, four turns | 112.22 s/saved turn | 9.84 GiB | 4/4 first attempts; summary refreshed |
-| Gemma E4B 8-bit, four turns | 46.47 s/saved turn | 7.85 GiB | 3/4 first attempts; summary refreshed |
-| Z-Image text-to-image, 512×768, 9 steps | 126.39 s | 5.57 GiB | PNG and visual inspection passed |
-| Z-Image GUI with reference, 512×768 | 55.13 s | 5.57 GiB | Saved and displayed at existing turn 4 |
-
-12B is the preserved default. E4B is faster in this small sample but needed one repair and had weaker story continuity. 12B still increased swap and briefly reached warning memory pressure; E4B’s measured swap usage declined. Neither small sample establishes swap-free operation on 16 GB. [Validation](docs/VALIDATION.md) records timing boundaries, quality examples and remaining limits. Original Gemma 4-bit/Qwen measurements are retained in [historical validation](docs/checkpoints/0005-validation.md).
-
-## Install a fresh copy
-
-Requires Apple Silicon macOS with Metal, Apple's command-line compiler tools, internet for setup, and sufficient disk space. Budget roughly 45–50 GB for all optional story models, the image stack, environments and build files. Inference itself is offline. Keep the project/runtime fully downloaded: in iCloud-managed Documents, use Finder’s **Keep Downloaded**, or install in a folder outside cloud storage. Offloaded runtime files can stall a worker even though model inference needs no network. Preserve the downloaded model cards, attribution and bundled Apache 2.0 image license.
+## Install
 
 ```sh
-# Only if Apple's compiler tools are missing:
-xcode-select --install
-
 git clone https://github.com/delirious6423/Hornbill-Game.git
 cd Hornbill-Game
-./scripts/setup.sh
+./scripts/setup.sh            # Rust, uv, Python 3.12, story environment
 ./scripts/model.sh download 12b
 ./scripts/model.sh use 12b
-./scripts/image.sh setup
-./scripts/image.sh download
+./scripts/image.sh setup      # image environment
+./scripts/image.sh download   # Z-Image + encoder (converts on disk)
 ./scripts/doctor.sh
 ./scripts/image.sh doctor
-./scripts/check.sh
+```
+
+Optional:
+
+```sh
+./scripts/model.sh download e4b   # Gemma E4B (8-bit)
+./scripts/gguf.sh setup           # GGUF fallback (llama.cpp + Gemma 12B Q4_K_M)
+```
+
+The runtime lives in `.local/` beside the source. Set `HORNBILL_RUNTIME=/path` before setup to use another location; the path is recorded in `.runtime-path`. Setup never edits your shell profile. Exact versions and model pins are in [docs/MODELS.md](docs/MODELS.md).
+
+## Run
+
+```sh
 ./hornbill ui
-
-# Optional alternative story model and GGUF fallback:
-./scripts/model.sh download e4b
-./scripts/gguf.sh setup
 ```
 
-A fresh clone or source ZIP omits `.runtime-path`, so setup uses a `.local` runtime beside the source. For a ZIP, extract it and enter its `hornbill` directory instead of cloning. `HORNBILL_RUNTIME=/absolute/runtime/path ./scripts/setup.sh` selects another location. In the existing development workspace, retain `.runtime-path` to reuse the installed tools and weights in `work/runtime`. Setup never changes your shell profile or requires a permanent model server.
+This builds if needed, starts a server on `127.0.0.1` and opens your browser. Keep the Terminal window open; press Control-C to stop. `./hornbill ui --no-open` prints the launch link instead. The link carries a session key; `data/ui-session.json` (mode 0600) holds it, so keep it private.
 
-The tools are pinned: Rust 1.98.1; complete Cargo dependencies in `Cargo.lock`; MLX 0.32.3, `mlx-lm` source `3051e26bc72b8ab426af17d14c5599447eb306a5`, llguidance 1.8.0; MFLUX source `2924d0c7cd7104a1ab2f18f40d3bedcf47ba8b9c` in a separate image environment. Exact model revisions, hashes, runtime research and upstream links are in [RUNTIMES.md](docs/RUNTIMES.md), worker manifests and dependency locks. Run Metal commands from an ordinary Terminal; a restricted execution environment may hide the GPU.
+## Using the app
 
-## CLI and diagnostics
+- **New story** asks for a title and an optional **Premise**. The default start is Hornbill Observatory with Alex and Mira.
+- Pick a choice or type an action. Command-Enter or Control-Enter submits. Each accepted turn is saved automatically; select a story under **Your stories** to resume it.
+- **Cancel** stops the running worker. A scene already saved stays saved.
+- **Illustrate scene** makes another illustration of the current scene.
+- **Settings**: story model (Gemma 12B (Q6), Gemma E4B (8-bit), GGUF fallback), when to illustrate (at visual moments, every turn, only when I ask), illustration size (384×576, 512×768, 768×768) and seed. Settings are per story.
+- **Story journal** shows the summary, inventory and open threads, and holds the story direction (tone, pacing), world notes (separate notes with a blank line; up to four relevant notes join each turn) and a reference image for a character or place. It also downloads the story and generation record as JSON.
+
+Limits to know about:
+
+- Narrative consistency is probabilistic. Validation protects saved state, not the truth of every sentence.
+- A reference image guides composition and clothing, not exact faces.
+- To change the starting characters and places, edit a copy of `prompts/world.json` and use `new --world`.
+
+## CLI quick reference
+
+`--save <name>` (default `main`) selects the story; `--data-dir` (env `HORNBILL_DATA_DIR`, default `data`) selects the data folder. Both go before or after the subcommand.
+
+| Command | What it does |
+|---|---|
+| `./hornbill ui [--port N] [--no-open]` | Open the interface |
+| `./hornbill --save S new [--title T] [--premise P] [--world FILE]` | Create a story (never overwrites) |
+| `./hornbill --save S play` | Interactive text play; `/state`, `/help`, `/quit` |
+| `./hornbill --save S turn --action 'text'` | Generate and save one turn |
+| `./hornbill --save S illustrate [--width 512 --height 768 --steps 9 --seed 42]` | Illustrate the current scene |
+| `./hornbill --save S inspect` | Print saved state as JSON |
+| `./hornbill --save S export --output FILE` | Export state, prompts, attempts, metrics |
+| `./hornbill schema` | Print the story model output schema |
+
+`play` and `turn` accept `--backend mlx|gguf|demo` (default `mlx`), `--model PATH`, `--python`, `--llama-binary`, `--cpu` (GGUF only), `--timeout-seconds 360`, `--retries 1`, `--max-tokens 1536`, `--context-tokens 6144` (2048–8192), `--temperature 0.6`, `--seed 42` and `--memory-gib 10`. CLI turns do not illustrate on their own.
 
 ```sh
-# Text-only interactive play; create once, then resume:
-./hornbill --save expedition new --title 'The expedition'
-./hornbill --save expedition play
-
-# One accepted story turn, followed by an illustration:
-./hornbill --save expedition turn --action 'I inspect the radio.'
-./hornbill --save expedition illustrate --width 512 --height 768 --steps 9 --seed 42
-
-# Canonical truth and complete audit (export refuses an existing file):
-./hornbill --save expedition inspect
-./hornbill --save expedition export --output data/expedition-audit.json
-./hornbill schema
-
-# A different starting world:
-./hornbill --save my_world new --world /absolute/path/world.json
-
-# A clearly labeled scripted demo, no AI required:
 ./hornbill --save demo new
-./hornbill --save demo play --backend demo
-
-# Select the default CLI MLX profile; UI preferences are per story:
-./scripts/model.sh use e4b
-./scripts/model.sh use 12b
-
-# Explicit CLI settings:
-./hornbill --save expedition play --context-tokens 6144 --max-tokens 1536 \
-  --temperature 0.6 --seed 42 --memory-gib 10 --timeout-seconds 360 --retries 1
+./hornbill --save demo play --backend demo      # scripted, no model needed
+./hornbill --save trip play --backend gguf --model "$(./scripts/gguf.sh path)"
 ```
 
-In CLI play, enter actions or choice numbers; `/state`, `/help` and `/quit` are available. CLI story commands do not automatically illustrate; the graphical interface coordinates both phases.
+Helper scripts: `model.sh download|use|path 12b|e4b`, `gguf.sh setup|binary|model|path`, `image.sh setup|download|doctor`, `doctor.sh`, `verify-local.sh`, `benchmark.sh`, `check.sh`.
 
-The GGUF adapter uses the same engine, schema and saves. It starts a private temporary `llama-server` and stops it before returning:
-
-```sh
-./hornbill --save expedition play --backend gguf --model "$(./scripts/gguf.sh path)"
-
-# Explicit CPU fallback is much slower:
-./hornbill --save expedition turn --backend gguf --cpu \
-  --model "$(./scripts/gguf.sh path)" --timeout-seconds 900 \
-  --action 'I listen to the radio.'
-```
-
-Pinned fallback: llama.cpp b11247 and Gemma 4 12B Q4_K_M GGUF. On Linux/NVIDIA, supply a suitable llama.cpp build with `--llama-binary` and `--model`; the Rust story engine needs no model-specific change. That platform has not been qualified here. The bundled Z-Image worker currently requires Apple MLX, and process-tree cleanup targets macOS/Linux, not Windows job objects. GGUF is a story-backend fallback, not a claim that every image backend is portable.
-
-## How it works
-
-1. Rust locks the save and selects a bounded context from SQLite.
-2. A Gemma worker generates schema-constrained JSON. The decoder enforces list limits and identifier spelling; Rust validates identities, state changes and player agency, with a recorded repair attempt if needed.
-3. The worker exits; Rust atomically saves the accepted turn, state and audit.
-4. Smart scheduling reuses the previous image or starts the isolated Z-Image worker.
-5. Z-Image materializes the text embedding, releases the encoder, denoises, releases the transformer, decodes in tiles, saves a PNG and exits.
-6. The interface displays the saved result. A failed image leaves the story and previous image intact.
-
-A shared inherited worker lock prevents Hornbill's story and image models from overlapping. Timeout, cancellation and aborted futures kill their process group. Locks do not govern unrelated AI applications.
-
-Canonical appearance and personality belong to the app. The model selects actions, pose and emotion; an image-prompt compiler injects stable visual identity. Context includes a cumulative summary, selected world state, relationships/objectives/threads, six retrieved memories, up to four lore entries and only two recent scenes with short dialogue excerpts. The complete transcript stays in SQLite. Token counting enforces the configured context limit before inference; oversized input fails clearly instead of silently dropping truth.
-
-Narrative and visual consistency remain probabilistic. JSON validation prevents invalid state mutations, but cannot prove every sentence true or every facial detail consistent. The reference path provides composition guidance; native multi-reference identity editing and long-session quality studies remain outside this MVP.
-
-## Files and verification
+## Project layout
 
 ```text
-src/                 Rust engine, SQLite, local API, image compiler, process supervisor
-ui/                  Embedded HTML, CSS and JavaScript; no web build step
-workers/gemma/       Offline MLX story adapter and pinned model installer
-workers/gguf/        Private llama.cpp adapter and installer
-workers/z_image/     Staged Z-Image worker, exact GGUF converter and pinned manifest
-prompts/             Starting world, model instructions and SQL migrations
-tests/               State, persistence, image and worker-lifecycle regressions
-scripts/             Setup, checks, diagnostics and benchmarks
-data/                Local SQLite saves, generated PNGs and imported references
-docs/                Architecture, protocol, measured evidence and handoff
+src/                 Rust: story engine, SQLite, local server, image prompt, process supervisor
+ui/                  HTML, CSS and JavaScript, embedded in the binary
+workers/gemma/       MLX story worker, model installer, pinned profiles
+workers/gguf/        llama.cpp fallback worker and installer
+workers/z_image/     Z-Image worker, encoder converter, pinned manifest
+workers/tests/       Python protocol and manifest tests
+prompts/             Starting world, story instructions, SQL migrations
+scripts/             Setup, checks, diagnostics, benchmark
+tests/               Rust integration tests
+docs/                Architecture, models, performance
+data/                Local database, illustrations, reference images (not in git)
 ```
+
+## Development checks
 
 ```sh
-./scripts/check.sh
-./scripts/verify-local.sh
-./scripts/benchmark.sh --profiles 12b e4b --turns 4
+./scripts/check.sh        # rustfmt, clippy -D warnings, cargo test, Python unit tests
+./scripts/verify-local.sh # real two-turn run and export; needs models, takes minutes
 ```
 
-`check.sh` runs formatting, Clippy, Rust regressions and Python protocol tests. Verification/benchmark commands create separate saves and record real inference; they take several minutes. See [BENCHMARKS.md](docs/BENCHMARKS.md). Frontend files are embedded in the Rust binary: rebuild/relaunch after editing them. The launch wrapper builds if needed.
+The UI files are embedded at compile time: rebuild after editing them.
 
-Back up SQLite with its backup API or export the complete record; copying only an active `.sqlite3` file can omit its WAL. PNGs/references stay on disk and need their own local backup. The Drive source ZIP intentionally contains code, documentation and curated test evidence, not live saves, model weights or session credentials.
+## Docs
 
-For the next development session, read [HANDOFF.md](docs/HANDOFF.md), [WORKLOG.md](docs/WORKLOG.md), [VALIDATION.md](docs/VALIDATION.md) and `docs/drive-log.json`. The standing Drive checkpoint policy is in `AGENTS.md`; exact context-percentage telemetry is unavailable, so checkpoints use conservative milestones and compaction boundaries.
+- [Architecture](docs/ARCHITECTURE.md): turn flow, state, workers, data on disk
+- [Models](docs/MODELS.md): profiles, pins, licenses, runtimes
+- [Performance](docs/PERFORMANCE.md): measurements, benchmark, known limits
+- [AGENTS.md](AGENTS.md): guide for contributors and coding agents

@@ -1,4 +1,4 @@
-"""Repeat a fixed story test with fresh worker processes; never downloads models."""
+"""Run a fixed story with a fresh worker per turn; never downloads models."""
 import argparse
 import csv
 import json
@@ -19,7 +19,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--profiles",nargs="+",choices=["12b","e4b","gguf"],default=["12b"])
     parser.add_argument("--turns",type=int,choices=range(1,5),default=4)
-    parser.add_argument("--cpu",action="store_true",help="Explicit GGUF CPU compatibility run; not a Metal benchmark")
+    parser.add_argument("--cpu",action="store_true",help="Run the GGUF fallback on CPU; not a Metal benchmark")
     args=parser.parse_args()
     root=Path(os.environ["HORNBILL_ROOT"])
     runtime=Path(os.environ["HORNBILL_RUNTIME"])
@@ -30,7 +30,7 @@ def main():
     for profile in args.profiles:
         model=runtime/"models"/("gguf-12b/gemma-4-12b-it-Q4_K_M.gguf" if profile=="gguf" else profiles[profile]["directory"])
         if not model.exists():
-            raise SystemExit(f"Model missing: {model}. Download explicitly before benchmarking.")
+            raise SystemExit(f"Story model missing: {model}. Download it before benchmarking.")
         save=f"bench_{profile}_{time.time_ns()}"
         base=[str(root/"hornbill"),"--save",save]
         subprocess.run(base+["new","--title",f"Benchmark {profile}"],check=True)
@@ -40,7 +40,7 @@ def main():
         for turn,action in enumerate(ACTIONS[:args.turns],1):
             result=subprocess.run(base+["turn","--action",action]+options)
             if result.returncode:
-                print(f"Stopping {profile} after turn {turn} failed; preserving its audit.")
+                print(f"Turn {turn} failed; stopping {profile}.")
                 break
         report=output_dir/f"{profile}.json"
         subprocess.run(base+["export","--output",str(report)],check=True)

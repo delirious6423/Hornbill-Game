@@ -44,7 +44,7 @@ impl ImageSettings {
         for size in [self.width, self.height] {
             ensure!(
                 (256..=768).contains(&size) && size % 32 == 0,
-                "image sizes must be multiples of 32 between 256 and 768"
+                "illustration width and height must be multiples of 32 between 256 and 768"
             );
         }
         ensure!(
@@ -53,7 +53,7 @@ impl ImageSettings {
         );
         ensure!(
             (4 * 1024_u64.pow(3)..=10 * 1024_u64.pow(3)).contains(&self.memory_limit_bytes),
-            "image memory limit must be 4–10 GiB"
+            "image model memory limit must be 4–10 GiB"
         );
         ensure!(
             self.reference_strength.is_finite() && (0.3..=1.0).contains(&self.reference_strength),
@@ -122,7 +122,7 @@ pub fn compile(
     let scene = state
         .current_scene
         .as_ref()
-        .context("advance the story before illustrating it")?;
+        .context("play a turn before creating an illustration")?;
     let location = &state.locations[&scene.location];
     let mut prompt = format!(
         "{} illustration. {}: {}. {}. Weather: {}. Mood: {}. Lighting: {}. Camera: {}.\n",
@@ -143,8 +143,8 @@ pub fn compile(
     }
     prompt.push_str(&format!("Action: {}. Maintain the described identities and clothing. One coherent scene, no captions, dialogue bubbles or interface elements.",scene.actions.join("; ")));
     text_field(&prompt, "image prompt", 9000)?;
-    // One composition anchor is supported by this low-memory img2img runtime.
-    // True multi-reference identity conditioning is a distinct backend capability.
+    // The low-memory img2img runtime accepts a single reference image, so use the
+    // first one found for a visible character, then for the location.
     let reference = scene
         .characters
         .iter()
@@ -181,7 +181,7 @@ pub fn resolve_asset(root: &Path, relative: &str) -> Result<std::path::PathBuf> 
         .context("local image file is missing")?;
     ensure!(
         resolved.starts_with(root) && resolved.is_file(),
-        "image is outside the save folder"
+        "image is outside the Hornbill data folder"
     );
     Ok(resolved)
 }

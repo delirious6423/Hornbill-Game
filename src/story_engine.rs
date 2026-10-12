@@ -44,7 +44,7 @@ impl Engine {
         ensure!(
             (2048..=8192).contains(&settings.context_tokens)
                 && settings.max_tokens < settings.context_tokens,
-            "context must be 2048–8192 and leave space for the prompt"
+            "context_tokens must be 2048–8192 and larger than max_tokens"
         );
         ensure!(
             settings.temperature.is_finite() && (0.0..=1.5).contains(&settings.temperature),
@@ -102,7 +102,7 @@ impl Engine {
                     &reply.metadata,
                     error,
                 )?;
-                bail!("inference worker: {error}");
+                bail!("story worker failed: {error}");
             }
             let validated = parse_turn(&reply.raw_text)
                 .and_then(|output| before.apply(&output).map(|next| (output, next)));
@@ -139,16 +139,16 @@ impl Engine {
                         &reply.metadata,
                         &error,
                     )?;
-                    eprintln!("Story response rejected: {error}");
+                    eprintln!("Story model response rejected: {error}");
                     if attempt < self.retries {
-                        eprintln!("Retrying from the unchanged save…");
+                        eprintln!("Retrying from the unchanged story…");
                     }
                     last_error = Some(error);
                 }
             }
         }
         bail!(
-            "no valid story after {} attempts; save unchanged. {}",
+            "no valid turn after {} attempts, so the story is unchanged: {}",
             self.retries + 1,
             last_error.unwrap_or_default()
         )

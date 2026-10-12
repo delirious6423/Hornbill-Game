@@ -43,15 +43,15 @@ impl Database {
 
     pub fn create_save(&self, id: &str, title: &str, state: &GameState) -> Result<()> {
         crate::state::identifier(id)?;
-        crate::state::text_field(title, "save title", 160)?;
+        crate::state::text_field(title, "story title", 160)?;
         state.validate()?;
-        ensure!(state.turn == 0, "new worlds must start at turn 0");
+        ensure!(state.turn == 0, "new stories must start at turn 0");
         self.connection
             .execute(
                 "INSERT INTO saves(id,title,version,state_json) VALUES (?1,?2,0,?3)",
                 params![id, title, serde_json::to_string(state)?],
             )
-            .context("cannot create save (the ID may already exist)")?;
+            .context("cannot create story (the ID may already exist)")?;
         Ok(())
     }
 
@@ -63,7 +63,7 @@ impl Database {
             })
             .optional()?;
         let state: GameState =
-            serde_json::from_str(&data.context("save not found; run 'hornbill new' first")?)?;
+            serde_json::from_str(&data.context("story not found; run 'hornbill new' first")?)?;
         state.validate()?;
         Ok(state)
     }
@@ -185,7 +185,7 @@ impl Database {
 
     pub fn recover_interrupted(&self, id: &str) -> Result<()> {
         self.connection.execute(
-            "UPDATE generation_attempts SET status='interrupted',error='Previous app or worker stopped before commit',finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE save_id=?1 AND status='running'", [id]
+            "UPDATE generation_attempts SET status='interrupted',error='Hornbill or the story worker stopped before the turn was saved',finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE save_id=?1 AND status='running'", [id]
         )?;
         Ok(())
     }
@@ -216,7 +216,7 @@ impl Database {
         )?;
         ensure!(
             rows == 1,
-            "save changed during generation; generated turn was not committed"
+            "the story changed during generation; the turn was not saved"
         );
         transaction.execute(
             "INSERT INTO turns(save_id,turn,action,response_json,state_before,state_after,attempt_id) VALUES (?1,?2,?3,?4,?5,?6,?7)",

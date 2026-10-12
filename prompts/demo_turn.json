@@ -1,5 +1,5 @@
 {
-  "narration": "[Scripted demo] Rain taps the observatory dome. Mira turns the radio dial, and three clear knocks emerge from the static. She points toward the maintenance path. This fixed scene tests the application; it does not respond intelligently to your action.",
+  "narration": "[Scripted demo] Rain taps the observatory dome. Mira turns the radio dial, and three clear knocks emerge from the static. She points toward the maintenance path. This fixed scene does not respond to your action.",
   "dialogue": [{"speaker":"mira","text":"Three knocks. Someone is listening."}],
   "choices": ["Examine the radio", "Ask Mira about the signal", "Look toward the maintenance path"],
   "state_changes": {
@@ -8,7 +8,7 @@
     "relationships":[], "plot_threads":[], "objectives":[],
     "discovered_facts":["The radio signal contains three knocks."],
     "weather":null,
-    "summary":"Alex and Mira remain outside the locked observatory. The radio has transmitted three knocks; their source is unresolved. This is a scripted test save."
+    "summary":"Alex and Mira remain outside the locked observatory. The radio has transmitted three knocks; their source is unresolved. This is a scripted demo story."
   },
   "scene": {
     "location":"observatory", "time":"Day 1, dusk",

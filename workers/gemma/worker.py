@@ -13,7 +13,7 @@ import sys
 import time
 import traceback
 
-# Must precede any HF/Transformers imports. Network is setup-only.
+# Must precede any HF/Transformers imports; only model.py may touch the network.
 for name in ("HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE", "HF_HUB_DISABLE_TELEMETRY", "DO_NOT_TRACK"):
     os.environ[name] = "1"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -60,9 +60,9 @@ def generate(model_path, request, meta):
 
     settings = validate_request(request)
     if not mx.metal.is_available():
-        raise RuntimeError("Metal is unavailable; run on Apple Silicon or use the GGUF backend")
+        raise RuntimeError("Metal is unavailable; run on Apple Silicon or use the GGUF fallback")
     if not model_path.is_dir() or not (model_path / "config.json").is_file():
-        raise ValueError("Pass an existing local MLX model directory; downloads are disabled")
+        raise ValueError("--model must be an existing local MLX model directory")
     meta.update({"backend":"mlx-lm", "model_path":str(model_path), "mlx_version":importlib.metadata.version("mlx"),
                  "runtime_version":importlib.metadata.version("mlx-lm"), "settings":settings})
     manifest = model_path / "hornbill-model.json"
@@ -71,11 +71,11 @@ def generate(model_path, request, meta):
         meta["model"] = json.loads(manifest.read_text())
         selections = json.loads(Path(__file__).with_name('models.json').read_text())
         if meta['model'] not in selections.values():
-            raise ValueError('Installed story model is superseded; download and select the current profile explicitly')
+            raise ValueError('Installed story model is out of date; run ./scripts/model.sh download and select it')
         for name, detail in meta['model']['files'].items():
             path = model_path / name
             if not path.is_file() or path.stat().st_size != detail['bytes']:
-                raise ValueError(f'Missing or incomplete selected model file: {path}')
+                raise ValueError(f'Missing or incomplete story model file: {path}')
             require_downloaded(path)
     mx.set_memory_limit(settings["memory_limit_bytes"])
     mx.set_cache_limit(256 * 1024**2)
@@ -88,9 +88,8 @@ def generate(model_path, request, meta):
     meta["formatted_prompt"] = formatted
     meta["prompt_tokens"] = len(tokens)
     if len(tokens) + settings["max_tokens"] > settings["context_tokens"]:
-        raise ValueError(f"Context budget exceeded: {len(tokens)} prompt + {settings['max_tokens']} output > {settings['context_tokens']}. Reduce the world/context or output length; no state was changed.")
-    # Generate the story before its choices. Object-key ordering changes only
-    # decoding order, never the contract or Rust's independent validation.
+        raise ValueError(f"Context budget exceeded: {len(tokens)} prompt + {settings['max_tokens']} output > {settings['context_tokens']}. Reduce the world notes or output length")
+    # Key order is decoding order: the scene is generated before its choices.
     schema = dict(request["schema"])
     properties = schema["properties"]
     order = ("narration", "dialogue", "scene", "state_changes", "memory_updates", "choices")
@@ -120,7 +119,7 @@ def generate(model_path, request, meta):
                  "finish_reason":last.finish_reason if last else None,
                  "mlx_peak_bytes":mx.get_peak_memory(), "mlx_active_end_bytes":mx.get_active_memory(),
                  "mlx_cache_end_bytes":mx.get_cache_memory()})
-    # The OS process exit, not a Python del/gc assertion, is the reclamation boundary.
+    # Process exit, not del/gc, is what releases Metal memory.
     return "".join(pieces)
 
 
@@ -146,7 +145,7 @@ def main():
         request = json.loads(payload)
         if args.model is None:
             raise ValueError("--model is required")
-        # Python/runtime messages must not corrupt the stdout protocol.
+        # Runtime chatter must not corrupt the stdout protocol.
         with contextlib.redirect_stdout(sys.stderr):
             result["raw_text"] = generate(args.model.resolve(), request, meta)
     except Exception as error:
