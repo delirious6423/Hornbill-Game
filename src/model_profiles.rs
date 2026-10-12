@@ -22,13 +22,13 @@ pub fn path(runtime: &Path, profile: &str) -> Result<PathBuf> {
 pub fn installed(runtime: &Path, profile: &str) -> bool {
     (|| -> Result<bool> {
         let wanted = spec(profile)?;
+        let directory = path(runtime, profile)?;
         let receipt: Value = serde_json::from_str(&std::fs::read_to_string(
-            path(runtime, profile)?.join("hornbill-model.json"),
+            directory.join("hornbill-model.json"),
         )?)?;
         if receipt != wanted {
             return Ok(false);
         }
-        let directory = path(runtime, profile)?;
         for (name, detail) in wanted["files"].as_object().context("missing model files")? {
             let metadata = std::fs::metadata(directory.join(name))?;
             if !metadata.is_file() || Some(metadata.len()) != detail["bytes"].as_u64() {

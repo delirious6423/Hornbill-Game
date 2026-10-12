@@ -1,31 +1,450 @@
-'use strict';
-const $=id=>document.getElementById(id);
-const fragment=new URLSearchParams(location.hash.slice(1));
-if(fragment.get('key')){sessionStorage.setItem('hornbill-key',fragment.get('key'));history.replaceState(null,'',location.pathname+location.search);}
-const key=sessionStorage.getItem('hornbill-key')||'';
-let selected=sessionStorage.getItem('hornbill-save')||'',current=null,busy=false,lastJob=0,lastPhase='',imageId=null,imageUrl=null,saveList=[];
-function node(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
-function notice(message){$('notice').textContent=message||'';$('notice').hidden=!message;for(const n of document.querySelectorAll('.dialog-notice'))n.remove();const dialog=document.querySelector('dialog[open]');if(message&&dialog){const n=node('p','notice dialog-notice',message);n.setAttribute('role','alert');dialog.prepend(n);}}
-async function api(path,body,method){const r=await fetch('/api/'+path,{method:method||(body?'POST':'GET'),headers:{Authorization:'Bearer '+key,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});const text=await r.text();let data;try{data=JSON.parse(text);}catch{data={error:text};}if(!r.ok)throw Error(data.error||'Unable to complete this request.');return data;}
-const safe=fn=>async event=>{try{await fn(event);}catch(e){notice(e.message);}};
-function controls(){document.querySelectorAll('.choice').forEach(b=>b.disabled=busy);$('continue-button').disabled=busy||!current;$('illustrate-button').disabled=busy||!current?.state.current_scene;$('progress').hidden=!busy;}
-async function listSaves(){const result=await api('saves');saveList=result.saves;$('saves').replaceChildren();for(const s of saveList){const b=node('button','save'+(s.id===selected?' selected':''));b.append(node('strong','',s.title),node('span','',s.turn?'Turn '+s.turn:'Not yet begun'));b.onclick=safe(()=>selectSave(s.id));$('saves').append(b);}if(!selected||!saveList.some(s=>s.id===selected))selected=saveList[0]?.id||'';}
-async function selectSave(id){selected=id;sessionStorage.setItem('hornbill-save',id);notice('');await refresh();await listSaves();}
-async function refresh(){if(!selected){current=null;controls();return;}current=await api('state/'+encodeURIComponent(selected));render();}
-async function showImage(image){if(image?.attempt_id===imageId)return;imageId=image?.attempt_id||null;$('scene-image').hidden=true;$('image-placeholder').hidden=false;if(imageUrl){URL.revokeObjectURL(imageUrl);imageUrl=null;}if(!image)return;const expected=imageId;const r=await fetch('/api/image/'+image.attempt_id,{headers:{Authorization:'Bearer '+key}});if(!r.ok)return;const blob=await r.blob();if(imageId!==expected)return;imageUrl=URL.createObjectURL(blob);$('scene-image').src=imageUrl;$('scene-image').hidden=false;$('image-placeholder').hidden=true;}
-function render(){const s=current.state,t=current.turn;const title=saveList.find(v=>v.id===selected)?.title||'Your story';$('story-title').textContent=title;$('chapter').textContent=s.turn?'THE STORY CONTINUES':'AT THE EDGE OF A MYSTERY';$('turn-label').textContent=s.turn?'Turn '+s.turn:'Your first move';$('place').textContent=s.locations[s.world.location].name;$('scene-time').textContent=s.world.time+' · '+s.world.weather;$('narration').textContent=t?.narration||s.summary;$('dialogue').replaceChildren();for(const d of t?.dialogue||[]){const block=node('div','speech');block.append(node('strong','',s.characters[d.speaker]?.name||d.speaker),node('p','',d.text));$('dialogue').append(block);}const choices=t?.choices||['I inspect the radio and ask Mira what she recognizes about the transmission.','I look for a practical way into the observatory.'];$('choices').replaceChildren();choices.forEach((text,i)=>{const b=node('button','choice');b.append(node('em','',String(i+1).padStart(2,'0')),node('span','',text));b.onclick=safe(()=>advance(text));$('choices').append(b);});$('image-label').hidden=!current.image;$('image-label').textContent=current.image?.turn<s.turn?'Previous illustration':current.image?.reason==='reused'?'Illustration reused':'Made here, for this scene';void showImage(current.image).catch(e=>notice(e.message));controls();}
-async function advance(action){if(!current||busy)return;notice('');await api('turn/'+selected,{action,expected_turn:current.state.turn});$('action').value='';busy=true;$('phase').textContent='Writing the next scene…';$('elapsed').textContent='Starting…';controls();}
-async function poll(){try{const j=await api('job');const wasBusy=busy;busy=j.running;$('phase').textContent=j.phase||'Creating your scene…';const seconds=j.started_ms?Math.max(0,Math.floor((Date.now()-j.started_ms)/1000)):0;$('elapsed').textContent=seconds>=60?Math.floor(seconds/60)+'m '+seconds%60+'s elapsed':seconds+'s elapsed';controls();if(j.id&&(lastJob!==j.id||lastPhase!==j.phase||wasBusy&&!busy)){lastJob=j.id;lastPhase=j.phase;await refresh();await listSaves();if(!busy&&j.error)notice(j.error);}}catch(e){notice(e.message);}finally{setTimeout(poll,busy?1000:4000);}}
-$('action-form').onsubmit=safe(async e=>{e.preventDefault();await advance($('action').value.trim());});$('action').onkeydown=e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();$('action-form').requestSubmit();}};
-$('illustrate-button').onclick=safe(async()=>{notice('');await api('illustrate/'+selected,{expected_turn:current.state.turn});busy=true;$('phase').textContent='Creating illustration…';$('elapsed').textContent='Starting…';controls();});
-$('cancel-button').onclick=safe(()=>api('cancel',{}));
-for(const b of document.querySelectorAll('[data-close]'))b.onclick=()=>$(b.dataset.close).close();
-for(const id of ['new-button','new-bottom','new-top'])$(id).onclick=()=>{notice('');$('new-dialog').showModal();};
-$('new-form').onsubmit=safe(async e=>{e.preventDefault();const result=await api('saves',{title:$('new-title').value.trim(),premise:$('new-premise').value.trim()||null});$('new-dialog').close();await listSaves();await selectSave(result.id);});
-$('settings-button').onclick=()=>{if(!current){$('new-dialog').showModal();return;}const p=current.preferences;$('model').value=p.model;$('image-policy').value=p.image_policy;$('image-size').value=p.image.width+'x'+p.image.height;$('image-seed').value=p.image.seed;$('settings-dialog').showModal();};
-$('settings-form').onsubmit=safe(async e=>{e.preventDefault();const [width,height]=$('image-size').value.split('x').map(Number);await api('preferences/'+selected,{...current.preferences,model:$('model').value,image_policy:$('image-policy').value,image:{...current.preferences.image,width,height,seed:Number($('image-seed').value)}},'PUT');$('settings-dialog').close();await refresh();notice('Preferences saved.');});
-$('journal-button').onclick=()=>{if(!current)return;const s=current.state;$('summary').textContent=s.summary;$('inventory').replaceChildren(...Object.entries(s.inventory).map(([name,count])=>node('li','',name.replaceAll('_',' ')+' × '+count)));$('threads').replaceChildren(...Object.values(s.plot_threads).filter(t=>t.status==='open').map(t=>node('li','',t.description)));$('director-note').value=s.director_note||'';$('world-notes').value=s.lorebook.map(n=>n.text).join('\n\n');$('reference-entity').replaceChildren(...[...Object.values(s.characters),...Object.values(s.locations)].map(v=>new Option(v.name+(s.references[v.id]?' · reference attached':''),v.id)));$('journal-dialog').showModal();};
-$('notes-form').onsubmit=safe(async e=>{e.preventDefault();const lorebook=$('world-notes').value.split(/\n\s*\n/).map(t=>t.trim()).filter(Boolean).map((text,i)=>({id:'note_'+i,text,tags:[]}));await api('notes/'+selected,{director_note:$('director-note').value.trim()||null,lorebook},'PUT');await refresh();$('journal-dialog').close();notice('Story notes saved.');});
-$('reference-form').onsubmit=safe(async e=>{e.preventDefault();const file=$('reference-file').files[0];if(!file)return;const bitmap=await createImageBitmap(file);const scale=Math.min(1,1536/Math.max(bitmap.width,bitmap.height));const canvas=document.createElement('canvas');canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));const r=await fetch('/api/reference/'+selected+'/'+$('reference-entity').value,{method:'POST',headers:{Authorization:'Bearer '+key},body:blob});if(!r.ok){const d=await r.json();throw Error(d.error||'Reference could not be saved.');}await refresh();$('journal-dialog').close();notice('Visual reference attached. It will guide the next illustration.');});
-$('export-button').onclick=safe(async()=>{const data=await api('export/'+selected);const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=selected+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
-(async()=>{try{await listSaves();if(selected)await selectSave(selected);else $('new-dialog').showModal();await poll();}catch(e){notice(e.message);}})();
+"use strict";
+
+const $ = (id) => document.getElementById(id);
+
+const DEFAULT_PHASE = "Writing the next scene…";
+const ILLUSTRATING_PHASE = "Creating illustration…";
+const MAX_REFERENCE_SIDE = 1536;
+
+// The launcher passes the API key in the URL fragment; keep it for this tab only.
+const fragment = new URLSearchParams(location.hash.slice(1));
+if (fragment.get("key")) {
+  sessionStorage.setItem("hornbill-key", fragment.get("key"));
+  history.replaceState(null, "", location.pathname + location.search);
+}
+const apiKey = sessionStorage.getItem("hornbill-key") || "";
+const authHeader = { Authorization: "Bearer " + apiKey };
+
+let selectedId = sessionStorage.getItem("hornbill-save") || "";
+let current = null; // latest state response for the selected story
+let busy = false; // a scene or illustration job is running
+let lastJobId = 0;
+let lastPhase = "";
+let shownAttemptId = null;
+let shownImageUrl = null;
+let stories = [];
+
+function createElement(tag, className, text) {
+  const element = document.createElement(tag);
+  if (className) element.className = className;
+  if (text !== undefined) element.textContent = text;
+  return element;
+}
+
+function notice(message) {
+  $("notice").textContent = message || "";
+  $("notice").hidden = !message;
+  for (const old of document.querySelectorAll(".dialog-notice")) old.remove();
+  // Open dialogs cover the page notice, so repeat it inside the dialog.
+  const dialog = document.querySelector("dialog[open]");
+  if (message && dialog) {
+    const copy = createElement("p", "notice dialog-notice", message);
+    copy.setAttribute("role", "alert");
+    dialog.prepend(copy);
+  }
+}
+
+async function api(path, body, method) {
+  const response = await fetch("/api/" + path, {
+    method: method || (body ? "POST" : "GET"),
+    headers: body
+      ? { ...authHeader, "Content-Type": "application/json" }
+      : authHeader,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const text = await response.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    data = { error: text };
+  }
+  if (!response.ok) throw Error(data.error || "Request failed, try again");
+  return data;
+}
+
+// Wraps an event handler so failures show up as a notice.
+const reportErrors = (handler) => async (event) => {
+  try {
+    await handler(event);
+  } catch (error) {
+    notice(error.message);
+  }
+};
+
+function showBusy(phase) {
+  busy = true;
+  $("phase").textContent = phase;
+  $("elapsed").textContent = "Starting…";
+  updateControls();
+}
+
+function updateControls() {
+  for (const choice of document.querySelectorAll(".choice")) {
+    choice.disabled = busy;
+  }
+  $("continue-button").disabled = busy || !current;
+  $("illustrate-button").disabled = busy || !current?.state.current_scene;
+  $("progress").hidden = !busy;
+}
+
+async function listStories() {
+  stories = (await api("saves")).saves;
+  $("saves").replaceChildren();
+  for (const story of stories) {
+    const button = createElement(
+      "button",
+      "save" + (story.id === selectedId ? " selected" : ""),
+    );
+    button.append(
+      createElement("strong", "", story.title),
+      createElement(
+        "span",
+        "",
+        story.turn ? "Turn " + story.turn : "No turns yet",
+      ),
+    );
+    button.onclick = reportErrors(() => selectStory(story.id));
+    $("saves").append(button);
+  }
+  if (!stories.some((story) => story.id === selectedId)) {
+    selectedId = stories[0]?.id || "";
+  }
+}
+
+async function selectStory(id) {
+  selectedId = id;
+  sessionStorage.setItem("hornbill-save", id);
+  notice("");
+  await refresh();
+  await listStories();
+}
+
+async function refresh() {
+  if (!selectedId) {
+    current = null;
+    updateControls();
+    return;
+  }
+  current = await api("state/" + encodeURIComponent(selectedId));
+  render();
+}
+
+async function showImage(image) {
+  if (image?.attempt_id === shownAttemptId) return;
+  shownAttemptId = image?.attempt_id || null;
+  $("scene-image").hidden = true;
+  $("image-placeholder").hidden = false;
+  if (shownImageUrl) {
+    URL.revokeObjectURL(shownImageUrl);
+    shownImageUrl = null;
+  }
+  if (!image) return;
+  const requested = shownAttemptId;
+  const response = await fetch("/api/image/" + image.attempt_id, {
+    headers: authHeader,
+  });
+  if (!response.ok) return;
+  const blob = await response.blob();
+  if (shownAttemptId !== requested) return; // superseded while downloading
+  shownImageUrl = URL.createObjectURL(blob);
+  $("scene-image").src = shownImageUrl;
+  $("scene-image").hidden = false;
+  $("image-placeholder").hidden = true;
+}
+
+function renderDialogue(state, lines) {
+  $("dialogue").replaceChildren();
+  for (const line of lines) {
+    const block = createElement("div", "speech");
+    block.append(
+      createElement(
+        "strong",
+        "",
+        state.characters[line.speaker]?.name || line.speaker,
+      ),
+      createElement("p", "", line.text),
+    );
+    $("dialogue").append(block);
+  }
+}
+
+function renderChoices(choices) {
+  $("choices").replaceChildren();
+  choices.forEach((text, index) => {
+    const button = createElement("button", "choice");
+    button.append(
+      createElement("em", "", String(index + 1).padStart(2, "0")),
+      createElement("span", "", text),
+    );
+    button.onclick = reportErrors(() => advance(text));
+    $("choices").append(button);
+  });
+}
+
+function imageLabel(image, turnNumber) {
+  if (image.turn < turnNumber) return "Previous illustration";
+  if (image.reason === "reused") return "Illustration reused";
+  return "Illustration for this scene";
+}
+
+function render() {
+  const { state, turn, image } = current;
+  $("story-title").textContent =
+    stories.find((story) => story.id === selectedId)?.title || "Story";
+  $("chapter").textContent = state.turn ? "CURRENT SCENE" : "OPENING SCENE";
+  $("turn-label").textContent = state.turn
+    ? "Turn " + state.turn
+    : "No turns yet";
+  $("place").textContent = state.locations[state.world.location].name;
+  $("scene-time").textContent = state.world.time + " · " + state.world.weather;
+  $("narration").textContent = turn?.narration || state.summary;
+  renderDialogue(state, turn?.dialogue || []);
+  renderChoices(
+    turn?.choices || [
+      "I inspect the radio and ask Mira what she recognizes about the transmission.",
+      "I look for a practical way into the observatory.",
+    ],
+  );
+  $("image-label").hidden = !image;
+  if (image) $("image-label").textContent = imageLabel(image, state.turn);
+  void showImage(image).catch((error) => notice(error.message));
+  updateControls();
+}
+
+async function advance(action) {
+  if (!current || busy) return;
+  notice("");
+  await api("turn/" + selectedId, {
+    action,
+    expected_turn: current.state.turn,
+  });
+  $("action").value = "";
+  showBusy(DEFAULT_PHASE);
+}
+
+function formatElapsed(startedMs) {
+  const seconds = startedMs
+    ? Math.max(0, Math.floor((Date.now() - startedMs) / 1000))
+    : 0;
+  return seconds >= 60
+    ? Math.floor(seconds / 60) + "m " + (seconds % 60) + "s elapsed"
+    : seconds + "s elapsed";
+}
+
+async function poll() {
+  try {
+    const job = await api("job");
+    const wasBusy = busy;
+    busy = job.running;
+    $("phase").textContent = job.phase || DEFAULT_PHASE;
+    $("elapsed").textContent = formatElapsed(job.started_ms);
+    updateControls();
+    const changed =
+      lastJobId !== job.id || lastPhase !== job.phase || (wasBusy && !busy);
+    if (job.id && changed) {
+      lastJobId = job.id;
+      lastPhase = job.phase;
+      await refresh();
+      await listStories();
+      if (!busy && job.error) notice(job.error);
+    }
+  } catch (error) {
+    notice(error.message);
+  } finally {
+    setTimeout(poll, busy ? 1000 : 4000);
+  }
+}
+
+function openNewStoryDialog() {
+  notice("");
+  $("new-dialog").showModal();
+}
+
+function openSettingsDialog() {
+  if (!current) {
+    $("new-dialog").showModal();
+    return;
+  }
+  const { model, image_policy, image } = current.preferences;
+  $("model").value = model;
+  $("image-policy").value = image_policy;
+  $("image-size").value = image.width + "x" + image.height;
+  $("image-seed").value = image.seed;
+  $("settings-dialog").showModal();
+}
+
+function openJournalDialog() {
+  if (!current) return;
+  const { state } = current;
+  $("summary").textContent = state.summary;
+  $("inventory").replaceChildren(
+    ...Object.entries(state.inventory).map(([name, count]) =>
+      createElement("li", "", name.replaceAll("_", " ") + " × " + count),
+    ),
+  );
+  $("threads").replaceChildren(
+    ...Object.values(state.plot_threads)
+      .filter((thread) => thread.status === "open")
+      .map((thread) => createElement("li", "", thread.description)),
+  );
+  $("director-note").value = state.director_note || "";
+  $("world-notes").value = state.lorebook.map((note) => note.text).join("\n\n");
+  const subjects = [
+    ...Object.values(state.characters),
+    ...Object.values(state.locations),
+  ];
+  $("reference-entity").replaceChildren(
+    ...subjects.map(
+      (subject) =>
+        new Option(
+          subject.name +
+            (state.references[subject.id] ? " · reference image attached" : ""),
+          subject.id,
+        ),
+    ),
+  );
+  $("journal-dialog").showModal();
+}
+
+// Downscale to at most MAX_REFERENCE_SIDE px and re-encode as PNG.
+async function encodeReferenceImage(file) {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(
+    1,
+    MAX_REFERENCE_SIDE / Math.max(bitmap.width, bitmap.height),
+  );
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+}
+
+$("action-form").onsubmit = reportErrors(async (event) => {
+  event.preventDefault();
+  await advance($("action").value.trim());
+});
+
+$("action").onkeydown = (event) => {
+  if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+    event.preventDefault();
+    $("action-form").requestSubmit();
+  }
+};
+
+$("illustrate-button").onclick = reportErrors(async () => {
+  notice("");
+  await api("illustrate/" + selectedId, { expected_turn: current.state.turn });
+  showBusy(ILLUSTRATING_PHASE);
+});
+
+$("cancel-button").onclick = reportErrors(() => api("cancel", {}));
+
+for (const button of document.querySelectorAll("[data-close]")) {
+  button.onclick = () => $(button.dataset.close).close();
+}
+
+for (const id of ["new-button", "new-bottom", "new-top"]) {
+  $(id).onclick = openNewStoryDialog;
+}
+
+$("new-form").onsubmit = reportErrors(async (event) => {
+  event.preventDefault();
+  const created = await api("saves", {
+    title: $("new-title").value.trim(),
+    premise: $("new-premise").value.trim() || null,
+  });
+  $("new-dialog").close();
+  await listStories();
+  await selectStory(created.id);
+});
+
+$("settings-button").onclick = openSettingsDialog;
+
+$("settings-form").onsubmit = reportErrors(async (event) => {
+  event.preventDefault();
+  const [width, height] = $("image-size").value.split("x").map(Number);
+  await api(
+    "preferences/" + selectedId,
+    {
+      ...current.preferences,
+      model: $("model").value,
+      image_policy: $("image-policy").value,
+      image: {
+        ...current.preferences.image,
+        width,
+        height,
+        seed: Number($("image-seed").value),
+      },
+    },
+    "PUT",
+  );
+  $("settings-dialog").close();
+  await refresh();
+  notice("Settings saved.");
+});
+
+$("journal-button").onclick = openJournalDialog;
+
+$("notes-form").onsubmit = reportErrors(async (event) => {
+  event.preventDefault();
+  const lorebook = $("world-notes")
+    .value.split(/\n\s*\n/)
+    .map((text) => text.trim())
+    .filter(Boolean)
+    .map((text, index) => ({ id: "note_" + index, text, tags: [] }));
+  await api(
+    "notes/" + selectedId,
+    { director_note: $("director-note").value.trim() || null, lorebook },
+    "PUT",
+  );
+  await refresh();
+  $("journal-dialog").close();
+  notice("Notes saved.");
+});
+
+$("reference-form").onsubmit = reportErrors(async (event) => {
+  event.preventDefault();
+  const file = $("reference-file").files[0];
+  if (!file) return;
+  const response = await fetch(
+    "/api/reference/" + selectedId + "/" + $("reference-entity").value,
+    {
+      method: "POST",
+      headers: authHeader,
+      body: await encodeReferenceImage(file),
+    },
+  );
+  if (!response.ok) {
+    const data = await response.json();
+    throw Error(data.error || "Could not save the reference image");
+  }
+  await refresh();
+  $("journal-dialog").close();
+  notice("Reference image attached. It will guide the next illustration.");
+});
+
+$("export-button").onclick = reportErrors(async () => {
+  const data = await api("export/" + selectedId);
+  const url = URL.createObjectURL(
+    new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }),
+  );
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = selectedId + ".json";
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+(async () => {
+  try {
+    await listStories();
+    if (selectedId) await selectStory(selectedId);
+    else $("new-dialog").showModal();
+    await poll();
+  } catch (error) {
+    notice(error.message);
+  }
+})();

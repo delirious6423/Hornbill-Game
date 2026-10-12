@@ -81,7 +81,7 @@ pub struct InventoryChange {
 
 fn inventory_delta_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
     // Outlines Core currently ignores numeric minimum/maximum. An explicit enum
-    // enforces the same nonzero bounds as State::apply, including for GGUF.
+    // enforces the same nonzero bounds as GameState::apply, including for GGUF.
     let values: Vec<i32> = (-100..=100).filter(|value| *value != 0).collect();
     schemars::json_schema!({"type": "integer", "enum": values})
 }

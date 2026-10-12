@@ -82,7 +82,7 @@ impl Database {
     }
 
     pub fn recover_images(&self, save: &str) -> Result<()> {
-        self.connection.execute("UPDATE image_attempts SET status='interrupted',error='Application or image worker stopped before completion',finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE save_id=?1 AND status='running'",[save])?;
+        self.connection.execute("UPDATE image_attempts SET status='interrupted',error='Hornbill or the image worker stopped before finishing',finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE save_id=?1 AND status='running'",[save])?;
         Ok(())
     }
 }
@@ -123,12 +123,12 @@ impl ImageEngine<'_> {
         let state = self.database.load(save)?;
         ensure!(
             expected_turn.is_none_or(|turn| turn == state.turn),
-            "the scene changed in another session; its illustration was not generated"
+            "the story changed in another session; the illustration was not created"
         );
         let scene = state
             .current_scene
             .as_ref()
-            .context("advance the story before illustrating it")?;
+            .context("play a turn before creating an illustration")?;
         let previous = self.database.latest_image(save)?;
         let valid_previous =
             previous.filter(|p| image_prompt::resolve_asset(self.assets, &p.path).is_ok());
@@ -143,7 +143,7 @@ impl ImageEngine<'_> {
             scene.visual_importance,
             force,
         )?;
-        if reason.is_none() {
+        let Some(reason) = reason else {
             if let Some(mut image) = valid_previous {
                 self.database.connection.execute("INSERT INTO scene_images(save_id,turn,attempt_id,reason) VALUES (?1,?2,?3,'reused') ON CONFLICT(save_id,turn) DO UPDATE SET attempt_id=excluded.attempt_id,reason=excluded.reason",params![save,state.turn,image.attempt_id])?;
                 image.turn = state.turn;
@@ -151,7 +151,8 @@ impl ImageEngine<'_> {
                 return Ok(Some(image));
             }
             return Ok(None);
-        }
+        };
+        // The save ID becomes a directory name below.
         crate::state::identifier(save)?;
         let dir = self.assets.join("generations").join(save);
         std::fs::create_dir_all(&dir)?;
@@ -194,12 +195,12 @@ impl ImageEngine<'_> {
             );
             ensure!(
                 file.width == request.settings.width && file.height == request.settings.height,
-                "image dimensions do not match the request"
+                "illustration size does not match the request"
             );
             let bytes = std::fs::read(&output).context("image worker did not produce a file")?;
             ensure!(
                 bytes.len() <= 32 * 1024 * 1024 && bytes.starts_with(b"\x89PNG\r\n\x1a\n"),
-                "worker output is not a valid PNG"
+                "image worker output is not a valid PNG"
             );
             let mut reader = image::ImageReader::new(Cursor::new(bytes)).with_guessed_format()?;
             let mut limits = image::Limits::default();
@@ -225,10 +226,10 @@ impl ImageEngine<'_> {
         })?;
         ensure!(
             version == state.turn,
-            "story advanced during image generation; image was not attached"
+            "the story advanced while the illustration was being created; it was not attached"
         );
         tx.execute("UPDATE image_attempts SET status='succeeded',result_json=?2,metadata_json=?3,finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?1",params![attempt,stored.to_string(),reply.metadata.to_string()])?;
-        tx.execute("INSERT INTO scene_images(save_id,turn,attempt_id,reason) VALUES (?1,?2,?3,?4) ON CONFLICT(save_id,turn) DO UPDATE SET attempt_id=excluded.attempt_id,reason=excluded.reason",params![save,state.turn,attempt,reason.unwrap()])?;
+        tx.execute("INSERT INTO scene_images(save_id,turn,attempt_id,reason) VALUES (?1,?2,?3,?4) ON CONFLICT(save_id,turn) DO UPDATE SET attempt_id=excluded.attempt_id,reason=excluded.reason",params![save,state.turn,attempt,reason])?;
         tx.commit()?;
         self.database.latest_image(save)
     }

@@ -1,4 +1,4 @@
-"""One offline Z-Image-Turbo request with the selected BennyDaBall encoder, then exit."""
+"""One offline Z-Image-Turbo illustration request, then exit."""
 import argparse
 import contextlib
 import gc
@@ -33,31 +33,31 @@ def validate_request(request):
         raise ValueError("Unsupported image protocol")
     prompt = request.get("prompt")
     if not isinstance(prompt, str) or not prompt.strip() or len(prompt) > 9000:
-        raise ValueError("Image prompt must contain 1–9000 characters")
+        raise ValueError("Illustration prompt must contain 1–9000 characters")
     settings = request["settings"]
     for field in ("width", "height"):
         if type(settings[field]) is not int or not 256 <= settings[field] <= 768 or settings[field] % 32:
-            raise ValueError("Image dimensions must be multiples of 32 between 256 and 768")
+            raise ValueError("Illustration width and height must be multiples of 32 between 256 and 768")
     if type(settings["steps"]) is not int or not 4 <= settings["steps"] <= 12:
         raise ValueError("Z-Image-Turbo uses 4–12 steps; 9 is the default")
     if type(settings["seed"]) is not int or not 0 <= settings["seed"] < 2**32:
         raise ValueError("Invalid seed")
     if type(settings["memory_limit_bytes"]) is not int or not 4 * 1024**3 <= settings["memory_limit_bytes"] <= 10 * 1024**3:
-        raise ValueError("Image memory limit must be 4–10 GiB")
+        raise ValueError("Image model memory limit must be 4–10 GiB")
     strength = settings.get("reference_strength", 0.6)
     if type(strength) not in (int, float) or not math.isfinite(strength) or not 0.3 <= strength <= 1:
-        raise ValueError("Reference strength must be 0.3–1")
+        raise ValueError("Reference image strength must be 0.3–1")
     output = Path(request["output_path"])
     if not output.is_absolute() or output.suffix.lower() != ".png" or not output.parent.is_dir() or output.exists():
         raise ValueError("Output must be a new absolute PNG path in an existing directory")
     reference = request.get("reference_path")
     if reference and (not Path(reference).is_absolute() or not Path(reference).is_file()):
-        raise ValueError("Reference must be an existing local image")
+        raise ValueError("Reference image must be an existing local file")
     return settings, output
 
 
 def require_downloaded(path):
-    # macOS SF_DATALESS marks an iCloud placeholder; opening it can block for minutes.
+    # macOS SF_DATALESS marks an iCloud placeholder; reading it can block for minutes.
     if getattr(path.stat(), "st_flags", 0) & 0x40000000:
         raise ValueError(f"Model file is offloaded to iCloud: {path}. Keep the runtime downloaded before generating.")
 
@@ -66,36 +66,36 @@ def check_model(root):
     spec = json.loads(Path(__file__).with_name("models.json").read_text())
     manifest = root / "hornbill-model.json"
     if not manifest.is_file():
-        raise ValueError("Z-Image weights are not installed; run ./scripts/image.sh download")
+        raise ValueError("Image model is not installed; run ./scripts/image.sh download")
     require_downloaded(manifest)
     receipt = json.loads(manifest.read_text())
     if receipt.get("spec") != spec:
-        raise ValueError("Image weights use a different manifest; run the explicit installer")
+        raise ValueError("Installed image model is out of date; run ./scripts/image.sh download")
     for name, detail in spec["renderer"]["files"].items():
         path = root / "pipeline" / name
         if not path.is_file() or path.stat().st_size != detail["bytes"]:
-            raise ValueError(f"Missing or incomplete renderer component: {path}")
+            raise ValueError(f"Missing or incomplete image model component: {path}")
         require_downloaded(path)
     converted = receipt.get("converted_files", {})
     if "model.safetensors.index.json" not in converted:
-        raise ValueError("Missing locally converted BennyDaBall encoder")
+        raise ValueError("Image model text encoder is not converted; run ./scripts/image.sh download")
     for name, detail in converted.items():
         if Path(name).name != name:
-            raise ValueError("Invalid converted weight path")
+            raise ValueError("Invalid text encoder file name")
         path = root / "pipeline/text_encoder" / name
         if not path.is_file() or path.stat().st_size != detail["bytes"]:
-            raise ValueError(f"Missing or incomplete chosen encoder: {path}")
+            raise ValueError(f"Missing or incomplete image model text encoder: {path}")
         require_downloaded(path)
     for name in ("tokenizer.json", "tokenizer_config.json", "chat_template.jinja"):
         path = root / "pipeline/tokenizer" / name
         if not path.is_file() or path.stat().st_size != spec["encoder"]["files"][name]["bytes"]:
-            raise ValueError(f"Missing chosen encoder tokenizer: {path}")
+            raise ValueError(f"Missing image model tokenizer file: {path}")
         require_downloaded(path)
     index = json.loads((root / "pipeline/text_encoder/model.safetensors.index.json").read_text())
     if str(index["metadata"]["quantization_level"]) != "8" or not {
         "embed_tokens.weight", "embed_tokens.scales", "embed_tokens.biases"
     }.issubset(index["weight_map"]):
-        raise ValueError("Expected the locally repacked Q8_0 GGUF encoder")
+        raise ValueError("Image model text encoder is not the repacked Q8_0 GGUF; run ./scripts/image.sh download")
     return spec
 
 
@@ -121,7 +121,7 @@ def generate(root, request, meta):
     from mflux.utils.image_util import ImageUtil
 
     if not mx.metal.is_available():
-        raise RuntimeError("Z-Image backend requires Apple Silicon Metal")
+        raise RuntimeError("The image model requires Apple Silicon Metal")
     mx.set_memory_limit(settings["memory_limit_bytes"])
     mx.set_wired_limit(min(settings["memory_limit_bytes"], 8 * 1024**3))
     mx.set_cache_limit(0)
@@ -139,7 +139,7 @@ def generate(root, request, meta):
 
     def finite(value, stage):
         if not bool(mx.all(mx.isfinite(value)).item()):
-            raise ValueError(f"Non-finite values during {stage}; no image was saved")
+            raise ValueError(f"Non-finite values during {stage}; no illustration was saved")
 
     def load(name, factory):
         started = time.perf_counter()
@@ -153,15 +153,15 @@ def generate(root, request, meta):
         return model
 
     tokenizer = TokenizerLoader.load_all(ZImageWeightDefinition.get_tokenizers(), str(root / "pipeline"))["z_image"]
-    # The selected tokenizer defaults to left padding. MFLUX takes the first
-    # valid-token count and uses absolute positions from zero; left padding also
-    # creates fully masked causal rows whose NaNs contaminate later layers.
+    # MFLUX counts valid tokens from the start and uses absolute positions from zero.
+    # Left padding (the tokenizer default) also makes fully masked causal rows whose
+    # NaNs contaminate later layers.
     tokenizer.tokenizer.padding_side = "right"
     formatted = tokenizer.tokenizer.apply_chat_template([{"role": "user", "content": request["prompt"]}],
                                                         tokenize=False, add_generation_prompt=True, **tokenizer.chat_template_kwargs)
     tokens = tokenizer.tokenizer(formatted, add_special_tokens=tokenizer.add_special_tokens, truncation=False)["input_ids"]
     if len(tokens) > tokenizer.max_length:
-        raise ValueError(f"Image prompt has {len(tokens)} tokens; Z-Image supports {tokenizer.max_length}. Shorten the active scene; no text was silently truncated")
+        raise ValueError(f"Illustration prompt has {len(tokens)} tokens; the image model allows {tokenizer.max_length}. Shorten the scene")
     meta["prompt_tokens"] = len(tokens)
     encoder = load("text_encoder", TextEncoder)
     started = time.perf_counter()
@@ -222,7 +222,7 @@ def generate(root, request, meta):
         print(f"Z-Image denoise {i+1}/{len(steps)}", file=sys.stderr, flush=True)
     meta["denoise_ms"] = (time.perf_counter() - started) * 1000
     memory("denoised")
-    # A compiled prediction closure also owns weights; release it before loading the decoder.
+    # The compiled prediction closure also owns weights; release it before loading the decoder.
     del predict, transformer, noise, encodings
     gc.collect()
     mx.clear_cache()
@@ -264,7 +264,7 @@ def main():
     try:
         payload = sys.stdin.buffer.read(128 * 1024 + 1)
         if len(payload) > 128 * 1024:
-            raise ValueError("Image request exceeds 128 KiB")
+            raise ValueError("Illustration request exceeds 128 KiB")
         request = json.loads(payload)
         validate_request(request)
         if args.model is None:

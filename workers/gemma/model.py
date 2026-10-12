@@ -1,4 +1,4 @@
-"""Explicit, online model installation; the inference worker never downloads."""
+"""Download and select story models; the worker itself never downloads."""
 import argparse
 import hashlib
 import json
@@ -9,17 +9,17 @@ import shutil
 
 def verify_file(path, detail):
     if not path.is_file() or path.stat().st_size != detail['bytes']:
-        raise ValueError(f'Missing or incomplete model file: {path}')
+        raise ValueError(f'Missing or incomplete story model file: {path}')
     if detail.get('sha256'):
         with path.open('rb') as f:
             actual = hashlib.file_digest(f, 'sha256').hexdigest()
         if actual != detail['sha256']:
-            raise ValueError(f'Weight checksum mismatch: {path}')
+            raise ValueError(f'Story model checksum mismatch: {path}')
     elif detail.get('git_blob_sha1'):
         raw = path.read_bytes()
         actual = hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest()
         if actual != detail['git_blob_sha1']:
-            raise ValueError(f'Metadata checksum mismatch: {path}')
+            raise ValueError(f'Story model metadata checksum mismatch: {path}')
 
 
 def main():
@@ -32,7 +32,7 @@ def main():
     destination = runtime / "models" / spec['directory']
     receipt = destination / 'hornbill-model.json'
     if receipt.is_file() and json.loads(receipt.read_text()) != spec:
-        raise SystemExit('Installed model differs from selected revision; preserve it and choose a new directory.')
+        raise SystemExit('Installed story model differs from the selected revision; keep it and choose a new directory')
     if args.command == "path":
         print(destination)
         return
@@ -57,7 +57,7 @@ def main():
             (runtime / "active-model").write_text(str(destination) + "\n")
     else:
         if not receipt.is_file():
-            raise SystemExit("Download the model first.")
+            raise SystemExit(f"Download the story model first: ./scripts/model.sh download {args.profile}")
         for name, detail in spec['files'].items():
             verify_file(destination / name, detail)
         (runtime / "active-model").write_text(str(destination) + "\n")

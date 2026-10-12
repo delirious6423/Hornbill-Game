@@ -22,7 +22,7 @@ pub fn acquire_lease(path: &std::path::Path) -> Result<File> {
         .write(true)
         .open(path)?;
     file.try_lock()
-        .context("another Hornbill turn/worker is running; wait for it to finish")?;
+        .context("another Hornbill turn or worker is running; wait for it to finish")?;
     Ok(file)
 }
 

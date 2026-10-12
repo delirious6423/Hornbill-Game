@@ -29,6 +29,8 @@ use std::{
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
+const GGUF_MODEL: &str = "models/gguf-12b/gemma-4-12b-it-Q4_K_M.gguf";
+
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct Preferences {
@@ -36,6 +38,7 @@ pub struct Preferences {
     pub image_policy: ImagePolicy,
     pub visual_threshold: f32,
     pub image: ImageSettings,
+    /// Preferences saved before this field existed used image backend version 1.
     #[serde(default = "legacy_image_backend_version")]
     pub image_backend_version: u32,
 }
@@ -43,34 +46,6 @@ fn legacy_image_backend_version() -> u32 {
     1
 }
 
-#[cfg(test)]
-mod preference_tests {
-    use super::*;
-
-    #[test]
-    fn old_image_settings_migrate_without_changing_story_or_seed() {
-        let old = json!({"model":"e4b","image_policy":"manual","visual_threshold":0.8,
-            "image":{"width":384,"height":576,"steps":40,"seed":123}});
-        let settings: Preferences = serde_json::from_value(old).unwrap();
-        let settings = settings.migrate();
-        settings.validate().unwrap();
-        assert_eq!(settings.image_backend_version, 2);
-        assert_eq!(settings.image.steps, 9);
-        assert_eq!(settings.model, "e4b");
-        assert_eq!(settings.image.seed, 123);
-        assert_eq!(settings.image.width, 384);
-        assert_eq!(settings.image_policy, ImagePolicy::Manual);
-    }
-
-    #[test]
-    fn current_image_settings_keep_an_explicit_step_choice() {
-        let current = json!({"image_backend_version":2,"image":{"steps":6}});
-        let settings: Preferences = serde_json::from_value(current).unwrap();
-        let settings = settings.migrate();
-        settings.validate().unwrap();
-        assert_eq!(settings.image.steps, 6);
-    }
-}
 impl Default for Preferences {
     fn default() -> Self {
         Self {
@@ -134,7 +109,7 @@ impl App {
     fn idle(&self) -> Result<()> {
         ensure!(
             !self.job.lock().unwrap().running,
-            "a scene is already being created; wait or cancel it"
+            "a turn or illustration is already in progress; wait or cancel it"
         );
         Ok(())
     }
@@ -227,7 +202,7 @@ async fn saves(State(app): State<App>) -> Api<Json<Value>> {
     )?;
     let rows=q.query_map([],|r|Ok(json!({"id":r.get::<_,String>(0)?,"title":r.get::<_,String>(1)?,"turn":r.get::<_,u32>(2)?,"updated_at":r.get::<_,String>(3)?})))?.collect::<std::result::Result<Vec<_>,_>>()?;
     Ok(Json(
-        json!({"saves":rows,"models":{"12b":crate::model_profiles::installed(&app.runtime,"12b"),"e4b":crate::model_profiles::installed(&app.runtime,"e4b"),"gguf":app.runtime.join("models/gguf-12b/gemma-4-12b-it-Q4_K_M.gguf").exists()},"images_ready":app.runtime.join("models/z-image-turbo-benny/hornbill-model.json").exists()}),
+        json!({"saves":rows,"models":{"12b":crate::model_profiles::installed(&app.runtime,"12b"),"e4b":crate::model_profiles::installed(&app.runtime,"e4b"),"gguf":app.runtime.join(GGUF_MODEL).exists()},"images_ready":app.runtime.join("models/z-image-turbo-benny/hornbill-model.json").exists()}),
     ))
 }
 #[derive(Deserialize)]
@@ -313,12 +288,12 @@ fn start_job(app: App, save: String, body: Action, only_image: bool) -> Api<Json
     let mut job = app.job.lock().unwrap();
     (!job.running)
         .then_some(())
-        .context("a scene is already being created")?;
+        .context("a turn or illustration is already in progress; wait or cancel it")?;
     let db = app.db()?;
     let current = db.load(&save)?;
     (current.turn == body.expected_turn)
         .then_some(())
-        .context("this scene changed; refresh before continuing")?;
+        .context("the story changed in another session; refresh before continuing")?;
     let prefs = preferences(&db, &save)?;
     prefs.validate()?;
     let id = now_ms();
@@ -344,17 +319,21 @@ fn start_job(app: App, save: String, body: Action, only_image: bool) -> Api<Json
         );
     job.abort = Some(task.abort_handle());
     drop(job);
-    let watcher = app.clone();
+    let watcher = app;
     tokio::spawn(async move {
         let result = task.await;
         let (phase, error) = match result {
+            Ok(Ok(())) if only_image => ("Illustration saved", None),
             Ok(Ok(())) => ("Scene saved", None),
             Ok(Err(e)) => ("Needs attention", Some(format!("{e:#}"))),
             Err(e) if e.is_cancelled() => (
                 "Cancelled",
-                Some("Cancelled. Any completed story turn is still saved.".into()),
+                Some("Cancelled. Any completed turn is still saved.".into()),
             ),
-            Err(e) => ("Needs attention", Some(format!("Scene task stopped: {e}"))),
+            Err(e) => (
+                "Needs attention",
+                Some(format!("The job stopped unexpectedly: {e}")),
+            ),
         };
         if let Ok(_lease) = acquire_lease(&watcher.data.join("turn.lock"))
             && let Ok(db) = watcher.db()
@@ -387,30 +366,28 @@ async fn run_job(
     };
     let mut expected = body.expected_turn;
     if !only_image {
-        let mut args = vec![
-            app.root
-                .join(if prefs.model == "gguf" {
-                    "workers/gguf/worker.py"
-                } else {
-                    "workers/gemma/worker.py"
-                })
-                .display()
-                .to_string(),
-            "--model".into(),
-        ];
-        let model = if prefs.model == "gguf" {
-            app.runtime
-                .join("models/gguf-12b/gemma-4-12b-it-Q4_K_M.gguf")
+        let gguf = prefs.model == "gguf";
+        let script = if gguf {
+            "workers/gguf/worker.py"
+        } else {
+            "workers/gemma/worker.py"
+        };
+        let model = if gguf {
+            app.runtime.join(GGUF_MODEL)
         } else {
             ensure!(
                 crate::model_profiles::installed(&app.runtime, &prefs.model),
-                "selected story model is not installed; run scripts/model.sh download"
+                "selected story model is not installed; run ./scripts/model.sh download"
             );
             crate::model_profiles::path(&app.runtime, &prefs.model)?
         };
         ensure!(model.exists(), "selected story model is not installed");
-        args.push(model.display().to_string());
-        if prefs.model == "gguf" {
+        let mut args = vec![
+            app.root.join(script).display().to_string(),
+            "--model".into(),
+            model.display().to_string(),
+        ];
+        if gguf {
             args.extend([
                 "--llama-binary".into(),
                 std::fs::read_to_string(app.runtime.join("llama-binary"))?
@@ -443,8 +420,8 @@ async fn run_job(
         expected += 1;
     }
     app.phase(id, "Creating illustration…");
-    // The story is committed and its worker reaped before an image worker can start.
-    // A competing CLI turn must never cause an illustration of the wrong scene.
+    // The turn is committed and its worker reaped before the image worker starts.
+    // expected_turn stops a competing CLI turn from getting the wrong illustration.
     let mut images = ImageEngine {
         database: &mut engine.database,
         assets: &app.data,
@@ -461,7 +438,11 @@ async fn run_job(
             Some(expected),
         )
         .await
-        .context("Story saved. Illustration could not finish")?;
+        .context(if only_image {
+            "the illustration could not be created"
+        } else {
+            "Story saved, but the illustration could not be created"
+        })?;
     Ok(())
 }
 async fn job(State(app): State<App>) -> Json<Job> {
@@ -542,7 +523,8 @@ pub async fn serve(root: PathBuf, data: PathBuf, port: u16, no_open: bool) -> Re
         .map(PathBuf::from)
         .unwrap_or_else(|| root.join(".local"));
     let mut random = [0u8; 24];
-    getrandom::fill(&mut random).map_err(|e| anyhow::anyhow!("session key: {e}"))?;
+    getrandom::fill(&mut random)
+        .map_err(|e| anyhow::anyhow!("cannot create a session key: {e}"))?;
     let token = random
         .iter()
         .map(|b| format!("{b:02x}"))
@@ -628,4 +610,33 @@ pub async fn serve(root: PathBuf, data: PathBuf, port: u16, no_open: bool) -> Re
         })
         .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod preference_tests {
+    use super::*;
+
+    #[test]
+    fn old_image_settings_migrate_without_changing_story_or_seed() {
+        let old = json!({"model":"e4b","image_policy":"manual","visual_threshold":0.8,
+            "image":{"width":384,"height":576,"steps":40,"seed":123}});
+        let settings: Preferences = serde_json::from_value(old).unwrap();
+        let settings = settings.migrate();
+        settings.validate().unwrap();
+        assert_eq!(settings.image_backend_version, 2);
+        assert_eq!(settings.image.steps, 9);
+        assert_eq!(settings.model, "e4b");
+        assert_eq!(settings.image.seed, 123);
+        assert_eq!(settings.image.width, 384);
+        assert_eq!(settings.image_policy, ImagePolicy::Manual);
+    }
+
+    #[test]
+    fn current_image_settings_keep_an_explicit_step_choice() {
+        let current = json!({"image_backend_version":2,"image":{"steps":6}});
+        let settings: Preferences = serde_json::from_value(current).unwrap();
+        let settings = settings.migrate();
+        settings.validate().unwrap();
+        assert_eq!(settings.image.steps, 6);
+    }
 }

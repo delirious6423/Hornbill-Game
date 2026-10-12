@@ -1,4 +1,4 @@
-"""Explicit, pinned installation; the generation worker never downloads weights."""
+"""Download and convert the pinned image model; the worker itself never downloads."""
 import argparse
 import fcntl
 import gc
@@ -19,7 +19,7 @@ def file_hash(path):
 
 def verify_file(path, detail):
     if not path.is_file() or path.stat().st_size != detail["bytes"]:
-        raise ValueError(f"Missing or incomplete model file: {path}")
+        raise ValueError(f"Missing or incomplete image model file: {path}")
     if detail.get("sha256") and file_hash(path) != detail["sha256"]:
         raise ValueError(f"Checksum mismatch: {path}")
     if detail.get("git_blob_sha1"):
@@ -75,7 +75,7 @@ def pack_q8_0(data, shape):
     if not np.array_equal(unsigned.astype(np.int16) - 128, signed):
         raise ValueError("GGUF integer repacking changed a weight")
     packed = np.ascontiguousarray(unsigned.reshape(rows, columns)).view("<u4")
-    # F32 scales/biases preserve GGUF's exact dequantized values, including cancellation.
+    # F32 scales/biases keep GGUF's dequantized values exact, including cancellation.
     return packed, scales, -128.0 * scales
 
 
@@ -121,7 +121,7 @@ def convert_encoder(source, destination):
                 raise ValueError(f"Expected exact Q8_0 matrix: {tensor.name}")
             packed, scales, biases = pack_q8_0(tensor.data, shapes[key])
             values = {key: mx.array(packed), key[:-6] + "scales": mx.array(scales), key[:-6] + "biases": mx.array(biases)}
-            # Compare MLX's actual dequantizer with GGUF's reference implementation at both ends of every matrix.
+            # Check MLX's dequantizer against GGUF's reference on the first and last row.
             for row in (0, shapes[key][0] - 1):
                 restored = mx.dequantize(values[key][row:row+1], values[key[:-6]+"scales"][row:row+1],
                                         values[key[:-6]+"biases"][row:row+1], group_size=32, bits=8)
@@ -165,22 +165,22 @@ def main():
     if receipt_path.is_file():
         receipt = json.loads(receipt_path.read_text())
         if receipt.get("spec") != spec:
-            raise ValueError("Installed image manifest differs; preserve it and select a new model directory")
+            raise ValueError("Installed image model differs from the pinned manifest; keep it and choose a new directory")
         for part, folder in (("renderer", "pipeline"), ("encoder", "encoder-source")):
             for name, detail in spec[part]["files"].items():
                 verify_file(root / folder / name, detail)
         for name, detail in receipt["converted_files"].items():
             verify_file(root / "pipeline/text_encoder" / name, detail)
-        print(f"Verified existing Z-Image installation: {root}", flush=True)
+        print(f"Verified installed image model: {root}", flush=True)
         return
     missing = sum(max(0, detail["bytes"] - ((root / folder / name).stat().st_size if (root / folder / name).is_file() else 0))
                   for part, folder in (("renderer", "pipeline"), ("encoder", "encoder-source"))
                   for name, detail in spec[part]["files"].items())
-    # Includes the repacked Q8 encoder, a temporary embedding shard and a 2 GiB reserve.
+    # Covers the repacked Q8 encoder, a temporary embedding shard and a reserve.
     cached = sum(f.stat().st_size for f in (root / "pipeline/text_encoder").glob("*.safetensors"))
     required = missing + max(0, int(5.2 * 1024**3) - cached) + int(2.5 * 1024**3)
     if shutil.disk_usage(root).free < required:
-        raise ValueError(f"Need {required/1024**3:.2f} GiB free for pinned downloads, conversion and reserve; no existing files removed")
+        raise ValueError(f"Need {required/1024**3:.2f} GiB free to install the image model; free up space and rerun")
     os.environ.setdefault("HF_XET_CHUNK_CACHE_SIZE_BYTES", "0")
     from huggingface_hub import snapshot_download
     for part, folder in (("renderer", "pipeline"), ("encoder", "encoder-source")):
@@ -199,7 +199,7 @@ def main():
         try:
             fcntl.flock(lease, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError as error:
-            raise ValueError("An inference worker is active; rerun the installer when the app is idle") from error
+            raise ValueError("A worker is running; rerun the download when Hornbill is idle") from error
         started = time.perf_counter()
         converted, verification = convert_encoder(root / "encoder-source" / spec["encoder"]["weight_file"], root / "pipeline/text_encoder")
     tokenizer = root / "pipeline/tokenizer"
@@ -210,7 +210,7 @@ def main():
     receipt = {"spec": spec, "converted_files": converted, "conversion_seconds": time.perf_counter() - started,
                "verification": verification, "conversion_note": "Selected BennyDaBall Q8_0 GGUF repacked to MLX affine Q8, group size 32. No requantization or replacement encoder."}
     receipt_path.write_text(json.dumps(receipt, indent=2) + "\n")
-    print(f"Verified Z-Image weights and chosen encoder: {root}", flush=True)
+    print(f"Installed image model: {root}", flush=True)
 
 
 if __name__ == "__main__":
