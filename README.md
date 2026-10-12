@@ -114,3 +114,7 @@ The UI files are embedded at compile time: rebuild after editing them.
 - [Models](docs/MODELS.md): profiles, pins, licenses, runtimes
 - [Performance](docs/PERFORMANCE.md): measurements, benchmark, known limits
 - [AGENTS.md](AGENTS.md): guide for contributors and coding agents
+
+## License
+
+Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE). Model weights keep their upstream licences; see [Models](docs/MODELS.md).

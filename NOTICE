@@ -1,0 +1,7 @@
+Hornbill
+Copyright 2026 delirious6423
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Third-party material keeps its own licence: workers/z_image/APACHE-2.0.txt is the upstream Z-Image
+licence, and model weights keep their upstream licences and attribution (see docs/MODELS.md).
